@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{% extends "user_base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    .card {
+        background: rgb(224, 239, 246);
+        background: linear-gradient(90deg, rgba(224, 239, 246, 1) 0%, rgba(246, 239, 252, 1) 100%);
+    }
+</style>
+
+
+<main id="main">
+
+    <section class="breadcrumbs">
+        <div class="container">
+
+            <ol>
+                <li><a href="{% url "user_dashboard" %}">Home</a></li>
+                <li>Dashboard </li>
+            </ol>
+
+        </div>
+    </section><!-- End Breadcrumbs -->
+
+    <section class="inner-page">
+
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card shadow mt-2">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-center bg-light  px-2 py-2 rounded"><b>Total Family
+                                        Members</b></h5>
+                                <h1 class="card-text">{{family_member_count}}</h1>
+                                <hr>
+                                <a href="{% url 'user_family_member' %}" class="btn btn-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <div class="col-md-6">
+                        <div class="card shadow mt-2">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-center bg-light  px-2 py-2 rounded"><b>Participated Events</b>
+                                </h5>
+                                <h1 class="card-text">{{participated_events}}</h1>
+                                <hr>
+                                <a href="{% url 'user_bookings' %}" class="btn btn-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Add more cards here -->
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+</main><!-- End #main -->
+
+
+<script>
+
+</script>
+
+{% endblock content %}

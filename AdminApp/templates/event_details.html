@@ -1,0 +1,342 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+   
+</style>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Event Details</h1>
+        <div class="row">
+            <div class="col">
+            </div>
+        </div>
+    </div><!-- End Page Title -->
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="container" style="max-width:97%;">
+                    <div class="text-lg-end text-start">
+                        <!-- Use text-lg-end for right alignment in large screens -->
+                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_event_ticket_price"><i
+                                class="mdi mdi-file-pdf"></i>Set Ticket Price</a>
+ 
+                                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_images_brochure"><i
+                                    class="mdi mdi-file-pdf"></i> Add Images/Brochure</a>
+     
+                                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_thumbnail"><i
+                                    class="mdi mdi-file-pdf"></i> Add Thumbnail</a>
+     
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+
+    
+
+    <div class="modal fade" id="add_event_ticket_price" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-light ">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Add Event Tiket Price</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <form method="post" action="{% url "admin_add_event_ticket_price" %}"
+                            enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                     
+                                    {{event_tiket_price_form.min_age|as_crispy_field}}
+                                    {{event_tiket_price_form.max_age|as_crispy_field}}
+                                    {{event_tiket_price_form.price|as_crispy_field}}
+                                    <input type="hidden" name="txt_event_id" id="txt_event_id" value="{{data.id}}">
+                                </div> 
+                            </div>
+                            <center>
+                                <input type="submit"  value="Submit"
+                                    class="btn bg-gradient-primary text-light"></input>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal fade" id="add_thumbnail" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-light ">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Add Thumbnail</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <form method="post" action="{% url "create_event_thumbnail" %}"
+                            enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {{thumbnail_form.thumbnail|as_crispy_field}}
+                                    <input type="hidden" name="txt_event_id" id="txt_event_id" value="{{data.id}}">
+                                </div> 
+                            </div>
+                            <center>
+                                <input type="submit" id="btnCreateSubmit" value="Submit"
+                                    class="btn bg-gradient-primary text-light"></input>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal fade" id="add_images_brochure" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-light ">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Add Images Brochure</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <form method="post" id="add_images_brochure_form"
+                            enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {{imageform.image|as_crispy_field}}
+                                </div>
+                                <div class="col-sm-12">
+                                    {{imageform.brochure|as_crispy_field}}
+                                </div> 
+                            </div>
+                            <center>
+                                <input type="submit" id="btnCreateSubmit" value="Submit"
+                                    class="btn bg-gradient-primary text-light"></input>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <section class="section dashboard">
+        <div class="row">
+
+            <!-- Left side columns -->
+            <div class="col-lg-12">
+                <style>
+                    h5{
+                        font-size:15px;
+                    }
+                </style>
+                
+                
+                
+                <div class="container" style="padding:2%" >
+                    <!-- Left side columns -->
+                    <div  >
+                            <div class=""  >
+
+                                
+                                
+                                <div class="row">
+                                    <div class="col-sm-12  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">Event Title</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5>{{data.title}}</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+
+                                <div class="row">
+                                    <div class="col-sm-4  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">Organizer</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5>{{data.organizer}}</h5>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="col-sm-4  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">Start Date</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5>{{data.start_time}}</h5>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="col-sm-4  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">End Date</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5>{{data.end_time}}</h5>
+                                        </div>
+                                    </div>
+                     
+                                </div>
+
+
+                                
+                                <div class="row">
+                                    <div class="col-sm-4  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">Status</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5>{{data.status}}  </h5>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="col-sm-4  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">Capacity</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5>{{data.capacity}}</h5>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="col-sm-4  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">Category</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5>{{data.category}}</h5>
+                                        </div>
+                                    </div>
+                     
+                                </div>
+                    
+                                <div class="row ">
+                                    <div class="col-sm-12  py-3 mb-1">
+                                        <div
+                                            style="background:white; text-align:justify; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">About Event</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5 class="text-justify">
+                                                {{data.description}}</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                
+                                <div class="row">
+                                    <div class="col-sm-12  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">Url</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5><a href="{{data.url}}">{{data.url}}</a></h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12  py-3 mb-1">
+                                    <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                        <span style="color:gray;">Event Ticket Price</span>
+                                        <hr>
+                                         <div class="col-sm-12">
+                                            <table class="table bg-primary  " style="border-radius:10px;">
+                                                <thead class="thead-dark bg-secondary text-light">
+                                                  <tr>
+                                                    <th scope="col">SR.No</th>
+                                                    <th scope="col">Age Range</th>
+                                                    <th scope="col">Price</th>
+                                                    <th scope="col">Action</th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody  style="background:#DDEEF1">
+                                                    <!-- Dynamically generated cards start -->
+                                                    {% for i in event_ticket_object %}
+                                                  <tr>
+                                                    <th scope="row">{{forloop.counter}}</th>
+                                                    <td>{{i.min_age}} - {{i.max_age}}</td>
+                                                    <td>{{i.price}}.00</td>
+                                                    <td>
+                                                        <a href="{% url "admin_delete_event_ticket_price" i.id %}" class="btn btn-danger">Delete</a>
+                                                    </td>
+                                                  </tr>
+                                                  {% endfor %}
+                                                </tbody> 
+                                              </table>
+                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h2>Event Brochures</h2>
+                            <div class="row">
+                                <!-- Dynamically generated cards start -->
+                                {% for i in images %}
+                                {% if i.brochure %}
+                                    <div class="col-12 col-sm-3 col-md-fifth mb-4">  <!-- Use the new custom class here -->
+                                        <a href="/media/{{i.brochure}}" class="btn btn-primary" download>Download Brochure</a>
+                                    
+                                    <a href="{% url "admin_delete_event_brochure" i.id %}" class="btn btn-danger"> <i class="bi bi-trash"></i> </a>
+
+                                    </div>
+                                {% endif %}
+                                {% endfor %}
+                                <!-- Dynamically generated cards end -->
+                            </div>
+
+                            
+                            
+                            <hr>
+                            <h2>Event Photos</h2>
+                            <div class="row">
+                                <!-- Dynamically generated cards start -->
+                                {% for i in images %}
+                                {% if i.image %}
+                                <div class="col-12 col-sm-3 col-md-fifth mb-4">  <!-- Use the new custom class here -->
+                                    <div class="card shadow" style="height: 100%;">
+                                        <img src="/media/{{i.image}}" class="card-img-top">
+                                        <hr>
+                                        <a href="{% url "admin_delete_event_images" i.id %}" class="btn btn-danger" style="position: absolute; bottom:2px; margin:5px;"> <i class="bi bi-trash"></i> </a>
+                                    </div> 
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                <!-- Dynamically generated cards end -->
+                            </div>
+
+
+                    </div>
+                </div><!-- End Left side columns -->
+                
+                 
+            </div>
+        </div><!-- End Left side columns -->
+
+    </section>
+ 
+
+</main><!-- End #main -->
+
+
+{% endblock content %}

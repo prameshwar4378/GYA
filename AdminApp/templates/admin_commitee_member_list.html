@@ -1,0 +1,185 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+{% block content %} 
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Comitee Member List</h1>
+        <div class="row">
+            <div class="col">
+            </div>
+        </div>
+    </div><!-- End Page Title -->
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="container" style="max-width:97%;">
+                    <div class="text-lg-end text-start">
+                        <!-- Use text-lg-end for right alignment in large screens -->
+                        <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_new_member"><i
+                                class="mdi mdi-filter"></i> Add New</a> 
+                                
+                        <a href="{% url "admin_comitee_year_list" %}" class="btn btn-primary" ><i
+                            class="mdi mdi-filter"></i> Year/Session</a> 
+                              
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+
+
+    <div class="modal fade" id="add_new_member" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:1000px;">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-light ">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Create New Member</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <form method="post"
+                            enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row">
+                                {{form|crispy}}
+                            </div>
+                            <center>
+                                <input type="submit" id="btnCreateSubmit" value="Submit"
+                                    class="btn bg-gradient-primary text-light"></input>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <section class="section dashboard">
+        <div class="row">
+
+            <!-- Left side columns -->
+            <div class="col-lg-12">
+                <div style="padding:2%">
+                    <!-- Left side columns -->
+                    <div>
+                        <div class="" style="overflow:scroll;">
+                            <table id="example" class="table table-striped"
+                                style="overflow:scroll;  width:100%; min-width: max-content;">
+                                <thead>
+                                    <tr style="background:#02B4C3;">
+                                        <th scope="col" class="text-center text-white">Sr.No</th>
+                                        <th scope="col" class="text-center text-white">Name</th>
+                                        <th scope="col" class="text-center text-white">position</th>
+                                        <th scope="col" class="text-center text-white">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in members %}
+                                    <tr>
+                                        <td class="text-center">{{ forloop.counter }}</td>
+                                        <td class="text-center">{{ i.name }}</td>
+                                        <td class="text-center">{{ i.position }}</td>
+                                        <td class="text-center">
+                                        <button class="btn btn-primary mr-2" title="Update"  data-toggle="modal" data-target="#update_comitee_member" onclick="update_comitee_member('{{i.id}}','{{i.year}}','{{i.image}}','{{i.name}}','{{i.position}}')">Update</button>
+                                            <a href="{% url "admin_delete_comitee_member" i.id %} " class="btn btn-danger">Delete</a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center">No Member found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div><!-- End Left side columns -->
+
+
+            </div>
+        </div><!-- End Left side columns -->
+
+    </section>
+
+    <!-- Add DataTables JavaScript -->
+      
+
+</main><!-- End #main -->
+
+
+
+<div class="modal fade" id="update_comitee_member" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:1000px;">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-primary text-light ">
+                <h5 class="modal-title" id="exampleModalLongTitle">Update Comitee Member</h5> 
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                
+                    <form method="post" id="admin_update_comitee_member" action="{% url "admin_update_comitee_member" %}">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-sm-6">
+                                 {{form.year|as_crispy_field}}
+                            </div>
+                            <div class="col-sm-6">
+                                 {{form.image|as_crispy_field}}
+                            </div>
+                            <div class="col-sm-6">
+                                 {{form.name|as_crispy_field}}
+                            </div>
+                            <div class="col-sm-6">
+                                 {{form.position|as_crispy_field}}
+                            </div> 
+                            <input type="hidden" name="txt_id" id="txt_id">
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <input type="submit" value="Update"  class="btn bg-gradient-primary text-light"></input>
+ 
+                        </div>
+ 
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function update_comitee_member(id, year, image, name, position) {
+        // Assuming your form has an id attribute set to "product_update_form"
+         
+        var form = document.getElementById("admin_update_comitee_member");
+        // Update form elements with the provided values
+        var id_val = form.elements["txt_id"];
+        id_val.value = id;
+
+        var year_val = form.elements["id_year"];
+        year_val.value = year ;
+        
+        {% comment %} var image_val = form.elements["id_image"];
+        image_val.value = image ; {% endcomment %}
+         
+        var name_val = form.elements["id_name"];
+        name_val.value = name ;
+
+        var position_val = form.elements["id_position"];
+        position_val.value = position ;
+    }
+</script>
+ 
+
+{% endblock content %}

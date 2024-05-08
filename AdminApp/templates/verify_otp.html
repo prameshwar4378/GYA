@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+{% extends "website_base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    .otp-form {
+        border-radius: 20px;
+        background-color: #f8f9fa;
+    }
+    .company-details {
+        border-radius: 20px;
+        background-color: #fff;
+    }
+</style>
+
+
+<main id="main">
+
+    <section class="breadcrumbs">
+        <div class="container">
+
+            <ol>
+                                <li><a href="{% url "user_dashboard" %}">Home</a></li>
+
+
+                <li>Verify OTP</li>
+            </ol>
+
+        </div>
+    </section><!-- End Breadcrumbs -->
+
+    <section class="inner-page">
+            
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-lg-6 col-md-8 col-sm-10">
+                     
+                     <br><br>
+                    <div class="otp-form p-4" id="otp_verification_form">
+                        <h2 class="mb-4">Verify OTP</h2>
+                            
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-danger">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %} 
+    
+                        <form id="otp_verification_form"  onsubmit="submitOTPForm()" method="post" action="{% url "verify_otp" %}">
+                            {% csrf_token %}
+                            <label for="txt_otp">Enter OTP:</label>
+                            <input type="number" name="txt_otp" id="txt_otp" class="form-control">
+                            <br>
+                            <center>
+                            <input type="submit" id="otp_form_submit_button" class="btn btn-primary mt-2 px-5" value="Submit">
+    
+                            <button class="btn btn-secondary mt-2 px-4"  id="otp_form_loading_button" type="button" style="display: none;"  disabled>
+                                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                Loading....
+                              </button>
+                            </center>
+                        </form>
+                    </div>
+    
+                </div>
+                 
+            </div>
+        </div>
+
+
+    </section>
+
+</main><!-- End #main -->
+
+
+<script>
+
+
+    function submitOTPForm() {
+        document.getElementById('otp_form_submit_button').style.display = 'none';
+        document.getElementById('otp_form_loading_button').style.display = 'block';
+        document.getElementById('otp_verification_form').submit();
+    }
+ 
+</script>
+
+{% endblock content %}

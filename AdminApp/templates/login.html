@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+{% extends "website_base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    .login-form {
+        border-radius: 20px;
+        background-color: #f8f9fa;
+    }
+    .company-details {
+        border-radius: 20px;
+        background-color: #fff;
+    }
+</style>
+
+
+<main id="main">
+
+    <section class="breadcrumbs">
+        <div class="container">
+
+            <ol>
+                <li><a href="{% url "index" %}">Home</a></li>
+                <li>Login</li>
+            </ol>
+
+        </div>
+    </section><!-- End Breadcrumbs -->
+
+    <section class="inner-page">
+            
+        <div class="container">
+
+            <div class="row justify-content-center align-items-center">
+                <div class="col-lg-6 col-md-8 col-sm-10">
+                    
+                    <div class="login-form p-4" id="login_form">
+                        {% if message %}
+                        <p class="alert alert-{{class}}"   id="login_text_helper" >
+                               {{message}} 
+                        </p>
+                        {% endif %}
+    
+                        <h2 class="mb-4">Login</h2>
+                        <!--<form id="login_form" method="POST" onsubmit="submitLoginForm()">
+                            {% csrf_token %}
+                            <div class="row">
+                                
+                                <div class="col-sm-12">
+                                    {{ form.username|as_crispy_field }}
+                                </div>
+                                <div class="col-sm-12">
+                                    {{ form.password|as_crispy_field }}
+                                </div>
+                                 
+                            <center>
+                            <input type="submit" class="btn btn-primary" id="login_form_submit_button" value="Submit">
+                            <button class="btn btn-primary"  id="login_form_loading_button" type="button" style="display: none;"  disabled>
+                                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                Sending OTP
+                              </button>
+                            </center>
+                        </form>
+                        <br>
+                        <br>
+                        <hr>
+                        <br>-->
+                        <form id="login_form_using_otp" method="POST" onsubmit="submitLoginUsingOTPForm()" action="{% url "login_with_otp" %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {{ form.username|as_crispy_field }}
+                                </div>
+                            <center>
+                            <input type="submit" class="btn btn-primary" id="login_form_using_otp_submit_button" value="Submit">
+                            <button class="btn btn-primary"  id="login_form_using_otp_loading_button" type="button" style="display: none;"  disabled>
+                                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                Logging in
+                              </button>
+                            </center>
+                        </form>
+                    </div>
+                     <br>
+                     <center>
+                        <div style="position: relative; left:-18px;">
+                            <hr>
+                            <span style="position: absolute; top: -23px; background-color: #f8f9fa; padding:10px;">or</span>
+                        </div>
+                    </center>
+                    <br>
+                    <center>
+                        <a href="{% url 'register' %}" class="btn btn-outline-primary">Create New Account <i class="bi bi-box-arrow-in-right"></i></a>
+                    </center>
+                    
+                </div>
+                 
+            </div>
+        </div>
+
+
+    </section>
+
+</main><!-- End #main -->
+
+
+<script>
+    
+    function submitLoginForm() {
+        document.getElementById('login_form_submit_button').style.display = 'none';
+        document.getElementById('login_form_loading_button').style.display = 'block';
+        document.getElementById('login_form').submit();
+    }
+
+    function submitLoginUsingOTPForm() {
+        document.getElementById('login_form_using_otp_submit_button').style.display = 'none';
+        document.getElementById('login_form_using_otp_loading_button').style.display = 'block';
+        document.getElementById('login_form_using_otp').submit();
+    }
+
+ 
+</script>
+
+ 
+
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    {% for msg in messages %}
+        {% if msg.tags == 'success' %}
+        swal({
+          title: "Good job!",
+          text: "{{msg}}",
+          icon: "success",
+          button: "OK",
+        });
+
+        {% elif msg.tags == 'error' %}
+        swal({
+          title: "Error",
+          text: "{{msg}}",
+          icon: "error",
+          button: "OK",
+        });
+         
+        {% elif msg.tags == 'warning' %}
+        swal({
+          title: "Warning",
+          text: "{{msg}}",
+          icon: "warning",
+          button: "OK",
+        });
+         
+        {% elif msg.tags == 'info' %}
+        swal({
+          title: "Oops",
+          text: "{{msg}}",
+          icon: "info",
+          button: "OK",
+        });
+         
+        {% endif %}
+    {% endfor %}
+</script>
+ 
+
+{% endblock content %}

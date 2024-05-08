@@ -1,0 +1,156 @@
+  {% extends "user_base.html" %}
+  {% block content %}
+  {% load crispy_forms_tags %}
+  <style> 
+  </style>
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+                          <li><a href="{% url "user_dashboard" %}">Home</a></li>
+
+
+          <li>Ticket Overview</li>
+        </ol>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+    <!-- ======= Blog Single Section ======= -->
+    <section id="blog" class="blog">
+      <div class="container" data-aos="fade-up">
+
+        <div class="row">
+
+          <div class="col-lg-12 entries">
+
+            <article class="entry entry-single">
+
+              <h2 class="entry-title">
+                <a href="">{{event.title}}</a>
+              </h2>
+
+              <div class="entry-meta">
+                  <div class="row">
+                    <div><i class="bi bi-person"></i> <a href="">{{event.organizer}}</a></div> <br>
+                    <div> <i class="bi bi-clock"></i> <a href=""> {{event.start_time}}</a></a></div>
+                  </div>
+              </div>
+            </article>
+          </div>
+
+
+          <div class="col-lg-8 entries" >
+
+            <article class="entry entry-single" style="padding:5px;">
+
+              <h5>Members Overview  <a href="#" class="btn btn-primary"  data-toggle="modal" data-target="#add_new_member">Add New</a></h5>
+              <hr>
+              <div class="" style="overflow:scroll;">
+                <table class="table table-striped" style="overflow:scroll;  width:100%; min-width: max-content;">
+
+                  <thead>
+                    <tr>
+                      <th scope="col">Sr.No</th>
+                      <th scope="col">Member Name</th>
+                      <th scope="col">Gender</th>
+                      <th scope="col">Age</th>
+                      <th scope="col">Ticket Price</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for i in members_with_price %}
+                    <tr>
+                      <th scope="row">{{forloop.counter}}</th>
+                      <td>{{i.member.full_name}}</td>
+                      <td class="">{{i.member.gender}}</td>
+                      <td class="">{{i.member.age}}</td>
+                      <td class="">{{i.price}}</td>
+                      <td class=""><a href="{% url "user_delete_family_member_from_ticket" i.member_id  %}"
+                          class="btn btn-danger">Delete</a></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+
+          <div class="col-lg-4 entries bg-primary text-light">
+
+            <article class="entry entry-single">
+
+              <h5>Total Amount</h5>
+              <hr>
+              <h3>{{total_price}}.00</h3>
+              <hr>
+              {% if total_price == 0 %}
+              <a href="{% url "user_pay_event_price" ticket_id %}" class="btn btn-warning">Generate Ticket</a>
+              {% else %}
+              <a href="{% url "user_pay_event_price" ticket_id %}" class="btn btn-warning">Pay Now</a>
+              {% endif %}
+            </article>
+          </div>
+
+
+
+
+        </div>
+
+      </div>
+    </section><!-- End Blog Single Section -->
+
+
+  </main><!-- End #main -->
+
+
+    <div class="modal fade" id="add_new_member" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-light ">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Add Members</h5> 
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <form method="post" action="{% url "user_add_family_member_in_ticket" %}"
+                            enctype="multipart/form-data">
+                            {% csrf_token %} 
+                            <div class="row">
+                              {% if available_family_members %}
+                                 <label for="cmb_members">Select Member</label>
+                                 <select name="cmb_member" id="cmb_member" class="form-control mt-2 border" required>
+                                  <option value="">--- select ---</option>
+                                  {% for i in available_family_members %}
+                                  <option value="{{i.id}}">{{i.full_name}}</option>
+                                  {% endfor %}
+                                 </select>
+                                 <input type="hidden" name="txt_ticket_id" value="{{ticket_id}}">
+                                 {% else %}
+                                 <p class="alert alert-warning"> All family member is added, Would you like to add more family member in profile <a href="{% url "user_family_member" %}">click here</a></p>
+                                 {% endif %}
+                            </div>
+                            <hr>
+                            <center> 
+                              {% if available_family_members %}
+                                <input type="submit" id="btnCreateSubmit" value="Submit"
+                                    class="btn bg-gradient-primary text-light"></input>
+                              {% else %}
+                               
+                              {% endif %}
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  {% endblock content %}
+  </body>
+
+  </html>

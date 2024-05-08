@@ -1,0 +1,60 @@
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 20px;
+            padding: 20px;
+            text-align:center;
+        }
+        .container {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+            border-radius:15px;
+        }
+        h3 {
+            font-size: 1.5rem;
+            color: #4a86e8;
+        }
+        p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        strong {
+            color: #4a86e8;
+        }
+
+        .otp-card{
+            border:1px solid gray;
+            background-color: #f2f2f2;
+            border-radius:30px;
+            padding:30px; 
+            width:150px;
+        }
+        .otp-card strong{
+            font-size:1.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>Welcome to Gujarati Youth Association, <span>{{ user.first_name }}!</span></h3>
+        <center>
+            <div class="otp-card">
+                Your Registration OTP is: <br><br><strong>{{ otp }}</strong>
+            </div>
+        </center>
+        <p>Thank you for joining us. We're excited to have you as part of our community!</p>
+        <p>As a member, you'll have access to exclusive events, workshops, and networking opportunities with other Gujarati youth from around the world.</p>
+        <p>If you have any questions or need assistance, please don't hesitate to reach out to us at <a href="mailto:info@gujaratiyouthassociation.org">info@gujaratiyouthassociation.org</a>.</p>
+        <br><br>
+        <p>Best regards,</p>
+        <p>The Gujarati Youth Association Team</p>
+    </div>
+</body>
+</html>

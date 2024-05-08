@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+{% extends "user_base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    .payment-form {
+        border-radius: 20px;
+        background-color: #f8f9fa;
+    }
+ 
+</style>
+
+
+<main id="main">
+
+    <section class="breadcrumbs">
+        <div class="container">
+
+            <ol>
+                <li><a href="{% url "user_dashboard" %}">Home</a></li>
+                <li>Membership Payment</li>
+            </ol>
+
+        </div>
+    </section><!-- End Breadcrumbs -->
+
+    <section class="inner-page">
+            
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-lg-6 col-md-8 col-sm-10">
+            
+            <div class="payment-form p-4" id="payment_form">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-success">Welcome, {{request.user.first_name}}
+                            <br> Make the Payment to become a membership
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="alert alert-success"><h3><b>Amt. 500/-</b></h3>
+                        </div>
+                    </div>
+                </div>
+ 
+                <form id="payment_form" method="POST" onsubmit="submitMembershipPaymentForm()">
+                    {% csrf_token %}
+                    <div class="row">
+                        
+                        <div class="col-sm-12"> 
+                            <input type="hidden" name="txt_amount" id="txt_amount" value="500" class="form-control" readonly>
+                        </div> 
+
+
+                    <center>
+                    <input type="submit" class="btn btn-primary mt-3 px-5" id="payment_form_submit_button" value="Make Payment">
+                    <button class="btn btn-secondary mt-3 px-4"  id="payment_form_loading_button" type="button" style="display: none;"  disabled>
+                        <span class="spinner-grow spinner-grow-sm " role="status" aria-hidden="true"></span>
+                        Loading....
+                      </button>
+                    </center>
+                </form>
+            </div> 
+            </div>
+         
+    </div>
+</div>
+
+
+    </section>
+
+</main><!-- End #main -->
+
+
+<script>
+    function submitMembershipPaymentForm() {
+        document.getElementById('payment_form_submit_button').style.display = 'none';
+        document.getElementById('payment_form_loading_button').style.display = 'block';
+        document.getElementById('payment_form').submit();
+    }
+</script>
+
+{% endblock content %}

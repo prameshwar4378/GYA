@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+{% extends "website_base.html" %}
+{% block headlinks %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.20.8/dist/css/uikit.min.css" />
+{% endblock headlinks %}
+{% block content %}
+
+<style>  
+</style>
+
+<main id="main">
+
+    <section class="breadcrumbs">
+        <div class="container">
+
+            <ol>
+                <li><a href="{% url "index" %}">Home</a></li>
+                <li>Photo Gallery</li>
+            </ol>
+
+        </div>
+    </section><!-- End Breadcrumbs -->
+
+
+    <section class="inner-page">
+      <div class="container">
+         <div class="uk-child-width-1-6@m " uk-grid uk-lightbox="animation: slide">
+            {% for photo in images %}
+           <div class=""> 
+             <a class="uk-inline" href="{{photo.image.url}}" data-caption=" ">
+               <img src="{{photo.image.url}}"  width="1800" height="1200" alt="">
+             </a>
+           </div> 
+           {% endfor %}
+         </div>
+      </div>
+    </section>
+
+    
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.20.8/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.20.8/dist/js/uikit-icons.min.js"></script>
+</main><!-- End #main -->
+ 
+ 
+   {% endblock content %}

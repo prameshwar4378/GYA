@@ -1,0 +1,160 @@
+  {% extends "user_base.html" %}
+  {% block headlinks %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.20.8/dist/css/uikit.min.css" />
+
+{% endblock headlinks %}
+  {% block content %}
+  <style>
+    .ticket_booking {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007bff; /* Bootstrap primary blue */
+      color: white;
+      text-transform: uppercase;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+  }
+  
+  .ticket_booking:hover {
+      background-color: #0056b3; /* A darker shade of blue */
+      text-decoration: none; /* Ensures the text does not get underlined on hover */
+  }
+  
+  /* Blinking animation */
+  @keyframes blinking {
+      0% { opacity: 1.0; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1.0; }
+  }
+  
+  .ticket_booking {
+      animation: blinking 1.5s infinite;
+  }
+  
+  </style>
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+                          <li><a href="{% url "user_dashboard" %}">Home</a></li>
+
+
+          <li>Event Detail</li>
+        </ol> 
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+    <!-- ======= Blog Single Section ======= -->
+    <section id="blog" class="blog">
+      <div class="container" data-aos="fade-up">
+
+        <div class="row">
+          <div class="col-lg-12 mb-3">
+            <a href="{% url "user_customize_family_member_for_booking" event_details.id %}" class="ticket_booking">Book Your Ticket</a>
+          </div>
+
+          <div class="col-lg-8 entries">
+
+            <article class="entry entry-single">
+
+              <div class="entry-img">
+                <img src="{{event_details.eventthumbnail.thumbnail.url}}" alt="" class="img-fluid">
+              </div>
+
+              <h2 class="entry-title">
+                <a href="">{{event_details.title}}</a>
+              </h2>
+
+              <div class="entry-meta">
+             
+                <div class="row">
+                  <div><i class="bi bi-person"></i> <a href="">{{event_details.organizer}}</a></div> <br>
+                  <div> <i class="bi bi-clock"></i> <a href=""> {{event_details.start_time}}</a></a></div>
+                </div>
+
+              </div>
+
+              <div class="entry-content">
+                <p>
+                  {{ event_details.description }}
+                </p>
+                 
+                <hr>
+                <div>
+                  <p>
+                    {% for brochure in event_images_or_brochure %}
+                      {% if brochure.brochure %}
+                          <a href="{{brochure.brochure}}" class="btn btn-primary" Download>Download Brochure </a>
+                          {% endif %}
+                    {% endfor %}
+                  </p>
+                </div>
+              </div>
+             
+
+            </article><!-- End blog entry -->
+            
+            <div class="blog-author d-flex align-items-center">
+              <div class="container">
+                <h3><b>Event Photos</b></h3>
+                <div class="uk-child-width-1-5@m " uk-grid uk-lightbox="animation: slide">
+                   {% for photo in event_images_or_brochure %}
+                  <div class=""> 
+                    {% if photo.image %}
+                    <a class="uk-inline" href="{{photo.image.url}}" data-caption=" ">
+                      <img src="{{photo.image.url}}"  width="1800" height="1200" alt="">
+                    </a>
+                    {% endif %}
+                  </div> 
+                  {% endfor %}
+                </div>
+             </div>
+            </div><!-- End blog author bio -->
+
+          </div><!-- End blog entries list -->
+
+          <div class="col-lg-4">
+
+            <div class="sidebar">
+ 
+              <h3 class="sidebar-title">Recent Events</h3>
+              <div class="sidebar-item recent-posts">
+
+
+                 {% for event in letest_events %}
+                <div class="post-item clearfix">
+                  <img src="{{event.eventthumbnail.thumbnail.url}}" alt="">
+                  <h4><a href="{% url "user_event_details" event.id %}">{{event.title}}</a></h4>
+                  <time datetime="2020-01-01">{{event.start_time}}</time>
+                </div>
+                 {% endfor %}
+    
+              </div><!-- End sidebar recent posts-->
+ 
+              </div><!-- End sidebar tags-->
+
+            </div><!-- End sidebar -->
+
+          </div><!-- End blog sidebar -->
+
+        </div>
+
+      </div>
+    </section><!-- End Blog Single Section -->
+
+  </main><!-- End #main -->
+  
+ 
+    
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.20.8/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.20.8/dist/js/uikit-icons.min.js"></script>
+  {% endblock content %}
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+{% extends "website_base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    .registration-form {
+        border-radius: 20px;
+        background-color: #f8f9fa;
+    }
+
+    .event-details {
+        border-radius: 20px;
+        background-color: #fff;
+    }
+</style>
+
+
+<main id="main">
+
+    <section class="breadcrumbs">
+        <div class="container">
+
+            <ol>
+                                <li><a href="{% url "user_dashboard" %}">Home</a></li>
+
+
+                <li>Register</li>
+            </ol>
+
+        </div>
+    </section><!-- End Breadcrumbs -->
+
+    <section class="inner-page">
+            
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-lg-6 col-md-8 col-sm-10">
+            
+            <div class="registration-form p-4" id="registration_form">
+                {% if message %}
+                <p class="alert alert-{{class}}"   id="registration_text_helper" >
+                       {{message}} 
+                </p>
+                {% endif %}
+
+                <h2 class="mb-4"><b>Register</b></h2>
+                <form id="registration_form" method="POST" onsubmit="submitRegistrationForm()">
+                    {% csrf_token %}
+                    <div class="row">
+                        
+                        <div class="col-sm-12">
+                            {{ form.full_name|as_crispy_field }}
+                        </div>
+                        <div class="col-sm-6">
+                            {{ form.email|as_crispy_field }}
+                        </div>
+                        <div class="col-sm-6">
+                            {{ form.phone_number|as_crispy_field }}
+                        </div>
+                        <div class="col-sm-6">
+                            {{ form.gender|as_crispy_field }}
+                        </div>
+                        <div class="col-sm-6">
+                            {{ form.age|as_crispy_field }}
+                        </div> 
+                    <center>
+                    <input type="submit" class="btn btn-primary mt-3 px-5" id="registration_form_submit_button" value="Submit">
+                    <button class="btn btn-secondary mt-3 px-4"  id="registration_form_loading_button" type="button" style="display: none;"  disabled>
+                        <span class="spinner-grow spinner-grow-sm " role="status" aria-hidden="true"></span>
+                        Loading....
+                      </button>
+                    </center>
+                </form>
+            </div>
+            <br> 
+            <center>
+                <div style="position: relative; left:-18px;">
+                    <hr>
+                    <span style="position: absolute; top: -23px; background-color: #f8f9fa; padding:10px;">or</span>
+                </div>
+            </center>
+            <br>
+            <center>
+                <a href="{% url 'user_login' %}" class="btn btn-outline-primary">Login <i class="bi bi-box-arrow-in-right"></i></a>
+            </center>
+            
+            </div>
+         
+    </div>
+</div>
+
+
+    </section>
+
+</main><!-- End #main -->
+
+
+<script>
+    function submitRegistrationForm() {
+        document.getElementById('registration_form_submit_button').style.display = 'none';
+        document.getElementById('registration_form_loading_button').style.display = 'block';
+        document.getElementById('registration_form').submit();
+    }
+</script>
+
+{% endblock content %}

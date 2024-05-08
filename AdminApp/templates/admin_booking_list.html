@@ -1,0 +1,170 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    #id_description {
+        height: 100px;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    } 
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 100px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        border-radius:10px;
+    }
+    .dropdown-content a {
+        color: black;
+        padding: 5px 10px;
+        text-decoration: none;
+        display: block;
+        text-align: left;
+    }
+    .dropdown-content a:hover {background-color: #f1f1f1;}
+    .dropdown:hover .dropdown-content {
+        display: block;
+    } 
+</style>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Booking List</h1>
+        <div class="row">
+            <div class="col">
+            </div>
+        </div>
+    </div><!-- End Page Title -->
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="container" style="max-width:97%;">
+                    <div class="text-lg-end text-start">
+                        <!-- Use text-lg-end for right alignment in large screens -->
+                        <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#filter_data"><i
+                                class="mdi mdi-filter"></i> Filter</a> 
+                                
+                                <div class="dropdown">
+                                    <button class="dropbtn btn btn-primary dropdown-toggle">Export</button>
+                                    <div class="dropdown-content">
+                                        <a href="#">PDF</a>
+                                        <a href="#">CSV</a>
+                                        <a href="#">Excel</a>
+                                    </div>
+                                </div>
+                                 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+
+
+    <div class="modal fade" id="add_new_student" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:1000px;">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-light ">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Create New Event</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <form method="post" id="student_creation_form" 
+                            enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row">
+                                
+                            </div>
+                            <center>
+                                <input type="submit" id="btnCreateSubmit" value="Submit"
+                                    class="btn bg-gradient-primary text-light"></input>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <section class="section dashboard">
+        <div class="row">
+
+            <!-- Left side columns -->
+            <div class="col-lg-12">
+                <div style="padding:2%">
+                    <!-- Left side columns -->
+                    <div>
+                        <div class="" style="overflow:scroll;">
+                            <table id="example" class="table table-striped"
+                                style="overflow:scroll;  width:100%; min-width: max-content;">
+                                <thead>
+                                    <tr style="background:#02B4C3;">
+                                        <th scope="col" class="text-center text-white">Sr.No</th>
+                                        <th scope="col" class="text-center text-white">User</th>
+                                        <th scope="col" class="text-center text-white">Total Members</th>
+                                        <th scope="col" class="text-center text-white">Booking ID</th>
+                                        <th scope="col" class="text-center text-white">Amount </th>
+                                        <th scope="col" class="text-center text-white">Is Paid </th>
+                                        <th scope="col" class="text-center text-white">Event</th>
+                                        <th scope="col" class="text-center text-white">Booking Date</th>
+                                        <th scope="col" class="text-center text-white">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ticket in tickets_details %}
+                                    <tr>
+                                        <td class="text-center">{{ forloop.counter }}</td>
+                                        <td class="text-center">{{ ticket.name }}</td>
+                                        <td class="text-center">{{ ticket.member_count }}</td>
+                                        <td class="text-center">{{ ticket.ticket_id }}</td>
+                                        <td class="text-center">{{ ticket.price | default:"N/A" }}</td>
+                                        <td class="">
+                                            {% if ticket.is_paid %}
+                                            <span style="background:green; color:white;">Paid</span>
+                                            {% else %}
+                                            <span style="background:red; color:white;">Not Paid</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">{{ ticket.event.title | default:"No Event" }}</td>
+                                        <td class="text-center">{{ ticket.booking_date | date:"Y-m-d H:i" }}</td>
+                                        <td class="text-center">
+                                            <a href="" class="btn btn-primary">Edit</a>
+                                            <a href="" class="btn btn-danger">Delete</a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center">No bookings found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div><!-- End Left side columns -->
+
+
+            </div>
+        </div><!-- End Left side columns -->
+
+    </section>
+
+    <!-- Add DataTables JavaScript -->
+      
+
+</main><!-- End #main -->
+
+
+{% endblock content %}

@@ -1,0 +1,48 @@
+{% extends "user_base.html" %}
+{% block content %}
+<style> 
+</style>
+
+<main id="main">
+
+<section class="breadcrumbs">
+    <div class="container">
+
+      <ol>
+                        <li><a href="{% url "user_dashboard" %}">Home</a></li>
+
+
+        <li>Events</li>
+      </ol>
+      <h2><b>{{year}}</b></h2>
+
+    </div>
+  </section><!-- End Breadcrumbs -->
+
+  <section class="inner-page">
+    <div class="container">
+      <div class="row">
+          <!-- Dynamically generated cards start -->
+          {% for event in data %}
+          <div class="col-12 col-sm-4 col-md-fifth mb-4">  <!-- Use the new custom class here -->
+              <div class="card shadow" style="height: 100%;">
+                  <img src="{{ event.eventthumbnail.thumbnail.url }}" class="card-img-top">
+                  <div class="card-body px-1 text-center">
+                      <b><p class="card-title">Title : {{ event.title }}</p></b>
+                      <p class="card-text">Date : {{ event.start_time }}</p>
+                      <hr>
+                      <a href="{% url "user_event_details" event.id %}" class="btn btn-primary">Read More</a>
+                      <a href="{% url "user_customize_family_member_for_booking" event.id %}" class="btn btn-primary">Book Your Tickets</a>
+                  </div>
+              </div>
+          </div>
+          {% endfor %}
+          <!-- Dynamically generated cards end -->
+      </div>
+  </div>
+  
+  </section>
+
+</main><!-- End #main -->
+
+{% endblock content %}

@@ -1,0 +1,51 @@
+{% extends "website_base.html" %}
+{% block content %}
+<style>
+  @media (min-width: 768px) { /* targeting md screens and up */
+      .col-md-fifth {
+          flex: 0 0 auto;
+          width: 20%;
+      }
+  }
+</style>
+
+<main id="main">
+
+<section class="breadcrumbs">
+    <div class="container">
+
+      <ol>
+                        <li><a href="{% url "user_dashboard" %}">Home</a></li>
+
+
+        <li>Commitee Members</li>
+      </ol>
+      <h2><b>{{year}}</b></h2>
+
+    </div>
+  </section><!-- End Breadcrumbs -->
+
+  <section class="inner-page">
+    <div class="container">
+      <div class="row">
+          <!-- Dynamically generated cards start -->
+          {% for profile in data %}
+          <div class="col-12 col-sm-6 col-md-fifth mb-4">  <!-- Use the new custom class here -->
+              <div class="card shadow" style="height: 100%;">
+                  <img src="{{ profile.image.url }}" class="card-img-top" alt="{{ profile.name }}">
+                  <div class="card-body px-1 text-center">
+                      <b><p class="card-title">{{ profile.name }}</p></b>
+                      <p class="card-text">{{ profile.position }}</p>
+                  </div>
+              </div>
+          </div>
+          {% endfor %}
+          <!-- Dynamically generated cards end -->
+      </div>
+  </div>
+  
+  </section>
+
+</main><!-- End #main -->
+
+{% endblock content %}
