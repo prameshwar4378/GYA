@@ -53,15 +53,16 @@
                         <form method="post" action="{% url "admin_add_event_ticket_price" %}"
                             enctype="multipart/form-data">
                             {% csrf_token %}
-                            <div class="row">
+                            <div class="row"> 
+                                  
                                 <div class="col-sm-12">
-                                     
-                                    {{event_tiket_price_form.min_age|as_crispy_field}}
-                                    {{event_tiket_price_form.max_age|as_crispy_field}}
-                                    {{event_tiket_price_form.price|as_crispy_field}}
+                                    {{ticket_price_form.member_price|as_crispy_field}}
+                                    {{ticket_price_form.guest_price|as_crispy_field}}
                                     <input type="hidden" name="txt_event_id" id="txt_event_id" value="{{data.id}}">
                                 </div> 
+                                <input type="hidden" name="txt_event_id" id="txt_event_id" value="{{data.id}}">
                             </div>
+                            
                             <center>
                                 <input type="submit"  value="Submit"
                                     class="btn bg-gradient-primary text-light"></input>
@@ -215,17 +216,18 @@
                     
                                     <div class="col-sm-4  py-3 mb-1">
                                         <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
-                                            <span style="color:gray;">Capacity</span>
+                                            <span style="color:gray;">Ticket Price</span>
                                             <hr style="margin:4px; margin-bottom:10px;">
-                                            <h5>{{data.capacity}}</h5>
+                                            <h5>{{data.ticket_price}}</h5>
                                         </div>
                                     </div>
                     
                                     <div class="col-sm-4  py-3 mb-1">
                                         <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
-                                            <span style="color:gray;">Category</span>
+                                            <span style="color:gray;">Url</span>
                                             <hr style="margin:4px; margin-bottom:10px;">
-                                            <h5>{{data.category}}</h5>
+                                            <h5><a href="{{data.url}}">{{data.url}}</a></h5>
+
                                         </div>
                                     </div>
                      
@@ -243,18 +245,9 @@
                                     </div>
                                 </div>
                     
-                                
-                                <div class="row">
-                                    <div class="col-sm-12  py-3 mb-1">
-                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
-                                            <span style="color:gray;">Url</span>
-                                            <hr style="margin:4px; margin-bottom:10px;">
-                                            <h5><a href="{{data.url}}">{{data.url}}</a></h5>
-                                        </div>
-                                    </div>
-                                </div>
+                                 
                             </div>
-                            <div class="row">
+                           <div class="row">
                                 <div class="col-sm-12  py-3 mb-1">
                                     <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
                                         <span style="color:gray;">Event Ticket Price</span>
@@ -264,30 +257,38 @@
                                                 <thead class="thead-dark bg-secondary text-light">
                                                   <tr>
                                                     <th scope="col">SR.No</th>
-                                                    <th scope="col">Age Range</th>
-                                                    <th scope="col">Price</th>
+                                                    <th scope="col">Member Price</th>
+                                                    <th scope="col">Guest Price</th>
                                                     <th scope="col">Action</th>
                                                   </tr>
                                                 </thead>
-                                                <tbody  style="background:#DDEEF1">
-                                                    <!-- Dynamically generated cards start -->
-                                                    {% for i in event_ticket_object %}
+                                                <tbody  style="background:#DDEEF1"> 
+                                                     {% if event_ticket_price %}
                                                   <tr>
-                                                    <th scope="row">{{forloop.counter}}</th>
-                                                    <td>{{i.min_age}} - {{i.max_age}}</td>
-                                                    <td>{{i.price}}.00</td>
+                                                    <th scope="row text-center">1</th>
+                                                    <td>₹ {{event_ticket_price.member_price}}.00</td>
+                                                    <td>₹ {{event_ticket_price.guest_price}}.00</td>
                                                     <td>
-                                                        <a href="{% url "admin_delete_event_ticket_price" i.id %}" class="btn btn-danger">Delete</a>
+                                                        <a href="{% url "admin_delete_event_ticket_price" event_ticket_price.id %}" class="btn btn-danger">Delete</a>
                                                     </td>
-                                                  </tr>
-                                                  {% endfor %}
+                                                  </tr> 
+                                                  {% else %}
+                                                  
+                                                  <tr>
+                                                    <th scope="row text-center">1</th>
+                                                    <td>₹ 0.00</td>
+                                                    <td>₹ 0.00</td>
+                                                    <td>
+                                                    </td>
+                                                  </tr> 
+                                                  {% endif %}
                                                 </tbody> 
                                               </table>
                                          </div>
                                     </div>
                                 </div>
                             </div>
-
+                       
                             <hr>
                             <h2>Event Brochures</h2>
                             <div class="row">

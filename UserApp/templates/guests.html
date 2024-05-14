@@ -28,7 +28,7 @@
 
             <ol>
                 <li><a href="{% url "index" %}">Home</a></li>
-                <li>Family Members</li>
+                <li>Guests</li>
             </ol>
 
         </div>
@@ -38,16 +38,16 @@
     <section class="inner-page">
 
 
-        <div class="modal fade" id="add_new_member" tabindex="-1" role="dialog"
+        <div class="modal fade" id="add_new_guest" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:1000px;">
                 <div class="modal-content">
                     <div class="modal-header bg-gradient-primary text-light ">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Add New Family Member</h5>
+                        <h5 class="modal-title" id="exampleModalLongTitle">Add New Guest</h5>
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <form method="post" id="student_creation_form" action="{% url "user_create_family_member" %}"
+                            <form method="post" id="student_creation_form" action="{% url "user_create_guests" %}"
                                 enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="row">
@@ -55,7 +55,7 @@
                                         {{form.full_name|as_crispy_field}}
                                     </div>
                                     <div class="col-sm-6">
-                                        {{form.age|as_crispy_field}}
+                                        {{form.dob|as_crispy_field}}
                                     </div>
                                     <div class="col-sm-6">
                                         {{form.gender|as_crispy_field}}
@@ -86,8 +86,8 @@
                         <div class="container" style="max-width:97%;">
                             <div class="text-lg-end text-start">
                                 <!-- Use text-lg-end for right alignment in large screens -->
-                                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_new_member">
-                                    <i class="mdi mdi-file-pdf"></i> Add Member
+                                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_new_guest">
+                                    <i class="mdi mdi-file-pdf"></i> Add Guest
                                 </a>
                             </div>
                         </div>
@@ -97,6 +97,28 @@
             <hr>
 
             <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-lg rounded">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary"><b>{{request.user.first_name}}  <i class="bi bi-patch-check-fill mx-2 text-warning "></i></b></h5>
+                            <p class="card-text"><strong>Gender:</strong> {{request.user.userprofile.gender}}</p>
+                            <p class="card-text"><strong>Date of Birth:</strong> {{request.user.userprofile.dob}}</p>
+                            <p class="card-text"><strong>Mobile:</strong> {{request.user.otp.phone_number}}</p>
+                        </div>
+
+                        <div class="card-footer" style="margin-top:-10px;">
+                            <div class="action-buttons text-lg-end text-start"> 
+                                <button class="btn btn-secondary mr-2" title="Update">
+                                    <i class="bi bi-pencil"></i>
+                                </button>                                     
+                                <button class="btn btn-secondary" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>   
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {% if data %}
                 {% for i in data %}
                 <div class="col-md-4 mb-4">
@@ -104,7 +126,7 @@
                         <div class="card-body">
                             <h5 class="card-title text-primary"><b>{{i.full_name}} {% if i.relation == "self" %} <i class="bi bi-patch-check-fill mx-2 text-warning "></i>{% endif %}</b></h5>
                             <p class="card-text"><strong>Gender:</strong> {{i.gender}}</p>
-                            <p class="card-text"><strong>Age:</strong> {{i.age}}</p>
+                            <p class="card-text"><strong>DOB:</strong> {{i.dob}}</p>
                             <p class="card-text"><strong>Relation:</strong> {{i.relation}}</p>
                         </div>
 
@@ -118,10 +140,10 @@
                                     <i class="bi bi-trash"></i>
                                 </button>                                   
                                 {% else %} 
-                                <button class="btn btn-primary mr-2" title="Update"  data-toggle="modal" data-target="#update_family_member" onclick="update_family_member('{{i.id}}','{{i.full_name}}','{{i.age}}','{{i.gender}}','{{i.relation}}')">
+                                <button class="btn btn-primary mr-2" title="Update"  data-toggle="modal" data-target="#update_guests" onclick="update_guests('{{i.id}}','{{i.full_name}}','{{i.dob}}','{{i.gender}}','{{i.relation}}')">
                                     <i class="bi bi-pencil"></i>
                                 </button> 
-                                <a href="{% url "user_delete_family_member" i.id %}" class="btn btn-danger" title="Delete">
+                                <a href="{% url "user_delete_guests" i.id %}" class="btn btn-danger" title="Delete">
                                     <i class="bi bi-trash"></i>
                                 </a>
                                 {% endif %}
@@ -145,24 +167,24 @@
 
 
 
-<div class="modal fade" id="update_family_member" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+<div class="modal fade" id="update_guests" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:1000px;">
         <div class="modal-content">
             <div class="modal-header bg-gradient-primary text-light ">
-                <h5 class="modal-title" id="exampleModalLongTitle">Update Family Member</h5> 
+                <h5 class="modal-title" id="exampleModalLongTitle">Update Guest Details</h5> 
             </div>
             <div class="modal-body">
                 <div class="row">
                 
-                    <form method="post" id="user_update_family_member" action="{% url "user_update_family_member" %}">
+                    <form method="post" id="user_update_guests" action="{% url "user_update_guests" %}">
                         {% csrf_token %}
                         <div class="row">
                             <div class="col-sm-6">
                                  {{form.full_name|as_crispy_field}}
                             </div>
                             <div class="col-sm-6">
-                                 {{form.age|as_crispy_field}}
+                                 {{form.dob|as_crispy_field}}
                             </div>
                             <div class="col-sm-6">
                                  {{form.gender|as_crispy_field}}
@@ -188,10 +210,10 @@
 
 
 <script>
-    function update_family_member(id, full_name, age, gender, relation) {
+    function update_guests(id, full_name, dob, gender, relation) {
         // Assuming your form has an id attribute set to "product_update_form"
  
-        var form = document.getElementById("user_update_family_member");
+        var form = document.getElementById("user_update_guests");
         // Update form elements with the provided values
         var id_val = form.elements["txt_id"];
         id_val.value = id;
@@ -199,8 +221,11 @@
         var full_name_val = form.elements["id_full_name"];
         full_name_val.value = full_name ;
         
-        var age_val = form.elements["id_age"];
-        age_val.value = age ;
+        
+        var dob_val = form.elements["id_dob"];
+        dob_val.value = formatDate(dob) ;
+         
+
         var gender_val = form.elements["id_gender"];
         gender_val.value = gender ;
         
@@ -208,7 +233,24 @@
         relation_val.value = relation ;
          
     }
+
+
+    function formatDate(dateString) {
+        // Create a new Date object from the input string
+        var date = new Date(dateString);
+    
+        // Extract year, month, and day from the Date object
+        var year = date.getFullYear();
+        var month = (date.getMonth() + 1).toString().padStart(2, '0'); // Adding 1 to month since it's zero-based
+        var day = date.getDate().toString().padStart(2, '0');
+    
+        // Construct the formatted date string in "YYYY-MM-DD" format
+        var formattedDate = year + '-' + month + '-' + day;
+    
+        return formattedDate;
+    }
 </script>
  
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script> 
 
 {% endblock content %}

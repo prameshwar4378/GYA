@@ -23,7 +23,12 @@ class ComiteeMember(models.Model):
     position=models.CharField(max_length=50)
     def __str__(self):
        return self.year.year
- 
+
+GENDER = (
+    ("Male", "Male"),
+    ("Female", "Female")
+)
+
 class OTP(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     otp = models.CharField(max_length=6)
@@ -31,13 +36,23 @@ class OTP(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    member_id = models.CharField(max_length=20, null=True, unique=True)
+    dob = models.DateField(auto_now=False, auto_now_add=False)
+    gender = models.CharField(max_length=50, choices=GENDER, null=True)
     is_member = models.BooleanField(default=False)
-    paid_date=models.DateTimeField(auto_now=False, auto_now_add=True)
+    paid_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True)
+    registration_date = models.DateTimeField(auto_now=False, auto_now_add=True, null=True)
 
-GENDER = (
-    ("Male", "Male"),
-    ("Female", "Female")
-)
+    def save(self, *args, **kwargs):
+        if not self.member_id:
+            last_member = UserProfile.objects.all().order_by('-member_id').first()
+            if last_member.member_id:
+                last_number = int(last_member.member_id.split('MBR')[1])
+                new_number = last_number + 1
+            else:
+                new_number = 201
+            self.member_id = f'MBR{new_number}'
+        super().save(*args, **kwargs)
 
 RELATION = (
     ("Self", "Self"),
@@ -58,12 +73,13 @@ RELATION = (
     ("Cousin", "Cousin"),
 )
 
-class FamilyMember(models.Model):
+class Guest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100)
     gender = models.CharField(max_length=50, choices=GENDER)
-    age = models.IntegerField()
+    dob = models.DateField(auto_now_add=False,auto_now=False)
     relation = models.CharField(max_length=50, choices=RELATION)
+    phone_number = models.CharField(max_length=50, choices=RELATION)
  
     def __str__(self):
         return self.full_name
@@ -82,19 +98,18 @@ class Event(models.Model):
     end_time = models.DateTimeField()
     organizer =  models.CharField(max_length=100)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='planned')
-    capacity = models.IntegerField()
-    category = models.CharField(max_length=100)
     url = models.URLField(blank=True, null=True)
+    ticket_price = models.IntegerField(default=0)
+
 
     def __str__(self):
         return self.title
 
-     
+
 class EventTicketPrice(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    min_age = models.IntegerField()
-    max_age = models.IntegerField()
-    price = models.IntegerField()
+    event=models.ForeignKey(Event, on_delete=models.CASCADE,null=True)
+    member_price=models.IntegerField(default=0)
+    guest_price=models.IntegerField(default=0)
     def __str__(self):
         return f"{self.event.title} Ticket Price"
 
@@ -104,6 +119,8 @@ class Ticket(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     is_paid=models.BooleanField(default=False)
     booking_date=models.DateTimeField(auto_now=True)
+    ticket_file=models.FileField(upload_to="Tickets/", max_length=1000,null=True,blank=True)
+    paid_amount=models.IntegerField(default=0)
 
     class Meta:
         ordering = ['-booking_date']
@@ -120,7 +137,8 @@ class Ticket(models.Model):
 
 class BookingMembers(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
-    family_member=models.ForeignKey(FamilyMember, on_delete=models.CASCADE)
+    guests=models.ForeignKey(Guest, on_delete=models.CASCADE,null=True,blank=True)
+    member=models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True) 
     def __str__(self):
         return f"{self.ticket.event.title} Booking Members"
 

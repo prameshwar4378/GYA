@@ -36,7 +36,6 @@ class EmailThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        # Create the email message with the text content
         email = EmailMultiAlternatives(
             self.subject,
             self.text_message,
@@ -128,13 +127,11 @@ def register(request):
             user.first_name = form.cleaned_data['full_name']
             user.save()
             phone_number=form.cleaned_data['phone_number']
-            full_name=form.cleaned_data['full_name']
             gender=form.cleaned_data['gender']
-            age=form.cleaned_data['age']
+            dob=form.cleaned_data['dob']
+            UserProfile.objects.create(user=user,gender=gender,dob=dob)
             generate_otp = ''.join(random.choices('0123456789', k=6))
-
             OTP.objects.create(user=user,phone_number=phone_number,otp=generate_otp)
-            FamilyMember.objects.create(user=user,full_name=full_name,gender=gender,age=age,relation="self")
 
             print(generate_otp)
             request.session['user_id_for_otp_verify'] = user.id
@@ -187,7 +184,7 @@ def login_with_otp(request):
         if form.is_valid():
             username = form.cleaned_data['username'] 
             # Check if username could be a phone number
-            if username.isdigit() and len(username) in [10, 11, 12]:  # typical lengths for phone numbers
+            if username.isdigit() and len(username) in [10, 11, 12]:   # typical lengths for phone numbers
                 try:
                     user_data = OTP.objects.filter(phone_number=username).exists()
                     if user_data:
@@ -217,7 +214,6 @@ def login_with_otp(request):
                     messages.error(request, "No user found with this phone number.")
                     return redirect('/login')
 
-            # Check if username could be an email
             elif "@" in username and "." in username:  # basic check for email
                 try:
                     user_data = User.objects.filter(email=username).exists()
@@ -265,8 +261,9 @@ def login_with_otp(request):
 
   
 def verify_otp(request):
+    user_id = request.session.get('user_id_for_otp_verify')
+    user=get_object_or_404(User,id=user_id)
     if request.method == "POST":
-        user_id = request.session.get('user_id_for_otp_verify')
         user_otp = request.POST.get('txt_otp')
 
         try:
@@ -295,7 +292,7 @@ def verify_otp(request):
             messages.error(request, "An error occurred while verifying the OTP. Please try again.")
             return redirect('/verify_otp')
     else:
-        return render(request, 'verify_otp.html')
+        return render(request, 'verify_otp.html',{'user':user})
     
 
 def custom_logout(request):
@@ -327,33 +324,18 @@ def booking_list(request):
         for ticket in tickets:
             event = ticket.event
             ticket_members = BookingMembers.objects.filter(ticket=ticket)
-            member_count = ticket_members.count()
-            payment_status = True if ticket.is_paid else False 
-            # Calculate total price
-            total_price = 0
-            for member in ticket_members:
-                try:
-                    event_price = EventTicketPrice.objects.get(
-                        event=event, 
-                        min_age__lte=member.family_member.age, 
-                        max_age__gte=member.family_member.age
-                    )
-                    price = event_price.price
-                except EventTicketPrice.DoesNotExist:
-                    price = 0  # Decide what to do if no price is available
-                    
-                total_price += price
+            member_count = ticket_members.filter(member__isnull=False).count()
+            guest_count = ticket_members.filter(guests__isnull=False).count()
             
-            user=ticket_members.first()
-            print()
+            payment_status = True if ticket.is_paid else False  
+            # Calculate total price  
             tickets_details.append({
-                'name':user.ticket.user.first_name,
+                'ticket':ticket,
                 'event': event.title,
-                'member_count': member_count,
+                'member_count': member_count, 
                 'payment_status': payment_status,
-                'price': total_price,
+                'price': ticket.paid_amount,
                 'id': ticket.id,  # Store ticket ID for use in actions like Delete
-                'ticket_id': ticket.ticket_id,  # Store ticket ID for use in actions like Delete
                 'booking_date': ticket.booking_date,  # Store ticket ID for use in actions like Delete
                 'is_paid':ticket.is_paid,
             })
@@ -361,10 +343,52 @@ def booking_list(request):
         return render(request, "admin_booking_list.html", {'tickets_details': tickets_details})
 
 
+def manage_booking(request,id):
+        ticket = Ticket.objects.get(id=id)
+        upload_ticket_form=UploadTicketFileForm()
+        ticket_members = BookingMembers.objects.filter(ticket=ticket)
+        member_count = ticket_members.filter(member__isnull=False).count()
+        guest_count = ticket_members.filter(guests__isnull=False).count()
+ 
+        context={
+                'ticket':ticket, 
+                'ticket_members':ticket_members,
+                'member_count': member_count,
+                'guest_count': guest_count,
+                'upload_ticket_form':upload_ticket_form,
+            }
+
+        return render(request, "admin_manage_booking.html", {'data': context})
+
+
+def upload_ticket(request):
+
+    if request.method == 'POST':
+        id = request.POST.get("txt_id") 
+        form = UploadTicketFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            ticket_file, created = Ticket.objects.update_or_create(
+                id=id,
+                defaults={'ticket_file': form.cleaned_data.get('ticket_file')}
+            )
+            if created:
+                messages.success(request, "Ticket created successfuly.")
+            else:
+                messages.success(request, "Ticket updated successfuly.")
+            
+            return redirect(f"/admin/manage_booking/{id}")
+        else:
+            messages.error(request, "Form is not valid. Please check the data provided.")
+            return redirect(f"/admin/manage_booking/{id}")
+    else:
+        messages.warning(request, "Only POST method is allowed for this operation.")
+        return redirect(f"/admin/manage_booking/{id}")
+    
+
 
 def members_list(request):
-    data = FamilyMember.objects.filter(relation="self").annotate(
-        total_members=Count('user__familymember')
+    data = User.objects.filter(is_superuser=False).annotate(
+        total_members=Count('guest')
     ).order_by("-id")
     context = {
         "data": data,
@@ -373,9 +397,11 @@ def members_list(request):
 
 
 def member_details(request,id):
-    data = FamilyMember.objects.filter(user=id).select_related()
+    member_data=get_object_or_404(User,id=id)
+    guest_data = Guest.objects.filter(user=id).select_related()
     context = {
-        "data": data,
+        "guest_data": guest_data,
+        "member_data":member_data
     }
     return render(request, 'admin_member_details.html', context)
 
@@ -422,16 +448,22 @@ def delete_event(request,id):
     Event.objects.get(id=id).delete()
     return redirect("/admin/event_list")
 
+ 
+
 def add_event_ticket_price(request):
     event_id = request.POST.get("txt_event_id") 
     event = get_object_or_404(Event, id=event_id)
+    
+    # Get the existing EventTicketPrice instance for the event, if any
+    event_ticket_price = EventTicketPrice.objects.filter(event=event).first()
+
     if request.method == 'POST':
-        form = EventTicketPriceForm(request.POST)
+        form = EventTicketPriceForm(request.POST, instance=event_ticket_price)
         if form.is_valid():
             new_form = form.save(commit=False)
             new_form.event = event
             new_form.save()
-            messages.success(request, "Ticket Price Added Success.")
+            messages.success(request, "Ticket Price Added/Updated Successfully.")
             return redirect(f"/admin/event_details/{event_id}")
         else:
             for field in form.errors:
@@ -441,6 +473,7 @@ def add_event_ticket_price(request):
     else:
         messages.warning(request, "Only POST method is allowed for this operation.")
         return redirect(f"/admin/event_details/{event_id}")
+
 
 
 def create_event_thumbnail(request):
@@ -469,11 +502,11 @@ def create_event_thumbnail(request):
 
 def event_details(request, id):
     event = get_object_or_404(Event, id=id)
-    event_ticket_object=EventTicketPrice.objects.filter(event=event).select_related()
+    event_ticket_price=EventTicketPrice.objects.filter(event=event).first()
     images = EventImagesBrochure.objects.filter(event=event)
     imageform = EventImagesBrochureForm()
-    thumbnail_form=EventThumbnailForm()
-    event_tiket_price_form=EventTicketPriceForm()
+    thumbnail_form=EventThumbnailForm() 
+    ticket_price_form=EventTicketPriceForm(instance=event_ticket_price) 
     if request.method == 'POST':
         imageform = EventImagesBrochureForm(request.POST, request.FILES)
         if imageform.is_valid():
@@ -488,7 +521,7 @@ def event_details(request, id):
     else:
         imageform = EventImagesBrochureForm()
 
-    return render(request, 'event_details.html', {'event_ticket_object':event_ticket_object,'event_tiket_price_form':event_tiket_price_form,'imageform': imageform,'thumbnail_form':thumbnail_form, 'data': event,"images":images})
+    return render(request, 'admin_event_details.html', {"ticket_price_form":ticket_price_form,'event_ticket_price':event_ticket_price,'imageform': imageform,'thumbnail_form':thumbnail_form, 'data': event,"images":images})
 
 def delete_event_brochure(request,id):
     event_brochure = EventImagesBrochure.objects.filter(id=id).first()

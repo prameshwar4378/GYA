@@ -39,8 +39,10 @@
                       <th scope="col" class="bg-dark text-light">Booking ID </th>
                       <th scope="col" class="bg-dark text-light">Event Name </th>
                       <th scope="col" class="bg-dark text-light">Total Mombers</th>
+                      <th scope="col" class="bg-dark text-light">Total Guests</th>
                       <th scope="col" class="bg-dark text-light">Payment Status</th>
                       <th scope="col" class="bg-dark text-light">Ticket Amount</th>
+                      <th scope="col" class="bg-dark text-light">Ticket Status</th>
                       <th scope="col" class="bg-dark text-light">Action</th>
                     </tr>
                   </thead>
@@ -51,6 +53,7 @@
                       <td>{% if i.payment_status %}{{i.ticket_id}}{% else %}---{% endif %}</td>
                       <td>{{i.event}}</td>
                       <td class="">{{i.member_count}}</td>
+                      <td class="">{{i.guest_count}}</td>
                       <td class="">
                         {% if i.payment_status %}
                         <span style="background:green; color:white;">Paid</span>
@@ -59,6 +62,13 @@
                         {% endif %}
                       </td>
                       <td class="">{{i.price}}.00</td>
+                      <td class="">
+                        {% if i.ticket_file %}
+                        <a href="{{i.ticket_file.url}}" class="btn btn-success" download>Download</a>
+                        {% else %}
+                        <span class="btn btn-warning">Pending</span>
+                        {% endif %}
+                      </td>
                       <td class="">
 
                         {% if not i.payment_status %}

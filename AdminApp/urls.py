@@ -3,6 +3,8 @@ from AdminApp.views import *
 urlpatterns = [
     path('dashboard/', admin_dashboard, name="admin_dashboard"),
     path('booking_list/', booking_list, name="admin_booking_list"),
+    path('manage_booking/<int:id>/', manage_booking, name="admin_manage_booking"),
+    path('upload_ticket/', upload_ticket, name="admin_upload_ticket"),
     path('event_list/', event_list, name="admin_event_list"),
     path('comitee_year_list/', comitee_year_list, name="admin_comitee_year_list"),
     path('update_comitee_year/', update_comitee_year, name="admin_update_comitee_year"),

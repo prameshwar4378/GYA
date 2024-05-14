@@ -1,6 +1,6 @@
 Membership Fees 
          is their single or multiple Membership plans like a (basic, premium, Ultimate)
-         Paid members can add how many family members or guest or any limitations should be thair. 
+         Paid members can add how many Guests or guest or any limitations should be thair. 
          can we provide them free tier for some day
          after expiry free tier thay will not able to use whole software or able to access some features which one
 

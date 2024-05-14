@@ -1,7 +1,9 @@
   {% extends "user_base.html" %}
   {% block content %}
   {% load crispy_forms_tags %}
-  <style> 
+  <style>
+    /* Add box shadow and border radius to option boxes */
+ 
   </style>
   <main id="main">
 
@@ -10,7 +12,7 @@
       <div class="container">
 
         <ol>
-                          <li><a href="{% url "user_dashboard" %}">Home</a></li>
+          <li><a href="{% url "user_dashboard" %}">Home</a></li>
 
 
           <li>Ticket Overview</li>
@@ -34,20 +36,21 @@
               </h2>
 
               <div class="entry-meta">
-                  <div class="row">
-                    <div><i class="bi bi-person"></i> <a href="">{{event.organizer}}</a></div> <br>
-                    <div> <i class="bi bi-clock"></i> <a href=""> {{event.start_time}}</a></a></div>
-                  </div>
+                <div class="row">
+                  <div><i class="bi bi-person"></i> <a href="">{{event.organizer}}</a></div> <br>
+                  <div> <i class="bi bi-clock"></i> <a href=""> {{event.start_time}}</a></a></div>
+                </div>
               </div>
             </article>
           </div>
 
 
-          <div class="col-lg-8 entries" >
+          <div class="col-lg-8 entries">
 
             <article class="entry entry-single" style="padding:5px;">
 
-              <h5>Members Overview  <a href="#" class="btn btn-primary"  data-toggle="modal" data-target="#add_new_member">Add New</a></h5>
+              <h5>Members Overview <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#select-option-modal">Add
+                  New</a></h5>
               <hr>
               <div class="" style="overflow:scroll;">
                 <table class="table table-striped" style="overflow:scroll;  width:100%; min-width: max-content;">
@@ -57,20 +60,32 @@
                       <th scope="col">Sr.No</th>
                       <th scope="col">Member Name</th>
                       <th scope="col">Gender</th>
-                      <th scope="col">Age</th>
+                      <th scope="col">Profile</th>
                       <th scope="col">Ticket Price</th>
                       <th scope="col">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {% for i in members_with_price %}
+                    {% for i in member_with_price %}
                     <tr>
                       <th scope="row">{{forloop.counter}}</th>
-                      <td>{{i.member.full_name}}</td>
-                      <td class="">{{i.member.gender}}</td>
-                      <td class="">{{i.member.age}}</td>
+                      <td>{{i.member.first_name}}</td>
+                      <td class="">{{i.member.userprofile.gender}}</td>
+                      <td class="">Member</td>
                       <td class="">{{i.price}}</td>
-                      <td class=""><a href="{% url "user_delete_family_member_from_ticket" i.member_id  %}"
+                      <td class=""><a href="{% url "user_delete_member_and_guest_from_ticket" i.member_id  %}"
+                          class="btn btn-danger">Delete</a></td>
+                    </tr>
+                    {% endfor %}
+
+                    {% for i in guests_with_price %}
+                    <tr>
+                      <th scope="row">{{forloop.counter}}</th>
+                      <td>{{i.guest.full_name}}</td>
+                      <td class="">{{i.guest.gender}}</td>
+                      <td class="">Guest</td>
+                      <td class="">{{i.price}}</td>
+                      <td class=""><a href="{% url "user_delete_member_and_guest_from_ticket" i.guest_id  %}"
                           class="btn btn-danger">Delete</a></td>
                     </tr>
                     {% endfor %}
@@ -87,12 +102,13 @@
               <h5>Total Amount</h5>
               <hr>
               <h3>{{total_price}}.00</h3>
-              <hr>
-              {% if total_price == 0 %}
-              <a href="{% url "user_pay_event_price" ticket_id %}" class="btn btn-warning">Generate Ticket</a>
-              {% else %}
-              <a href="{% url "user_pay_event_price" ticket_id %}" class="btn btn-warning">Pay Now</a>
-              {% endif %}
+              <hr> 
+              <form action="{% url "user_pay_event_price" %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="txt_id" value="{{id}}">
+                <input type="hidden" name="txt_amount" value="{{total_price}}">
+                <input type="submit" class="btn btn-warning" value="Pay Now">
+              </form> 
             </article>
           </div>
 
@@ -107,50 +123,178 @@
 
   </main><!-- End #main -->
 
-
-    <div class="modal fade" id="add_new_member" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-gradient-primary text-light ">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Add Members</h5> 
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <form method="post" action="{% url "user_add_family_member_in_ticket" %}"
-                            enctype="multipart/form-data">
-                            {% csrf_token %} 
-                            <div class="row">
-                              {% if available_family_members %}
-                                 <label for="cmb_members">Select Member</label>
-                                 <select name="cmb_member" id="cmb_member" class="form-control mt-2 border" required>
-                                  <option value="">--- select ---</option>
-                                  {% for i in available_family_members %}
-                                  <option value="{{i.id}}">{{i.full_name}}</option>
-                                  {% endfor %}
-                                 </select>
-                                 <input type="hidden" name="txt_ticket_id" value="{{ticket_id}}">
-                                 {% else %}
-                                 <p class="alert alert-warning"> All family member is added, Would you like to add more family member in profile <a href="{% url "user_family_member" %}">click here</a></p>
-                                 {% endif %}
-                            </div>
-                            <hr>
-                            <center> 
-                              {% if available_family_members %}
-                                <input type="submit" id="btnCreateSubmit" value="Submit"
-                                    class="btn bg-gradient-primary text-light"></input>
-                              {% else %}
-                               
-                              {% endif %}
-                            </center>
-                        </form>
-                    </div>
-                </div>
+  <!-- Modal container -->
+<div class="modal fade" id="select-option-modal" tabindex="-1" role="dialog" aria-labelledby="modal-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <!-- Modal header -->
+      <div class="modal-header bg-gradient-primary text-light">
+        <h5 class="modal-title" id="modal-title">Select your choice</h5>
+      </div>
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- Option 1: Add Member -->
+        <div class="row">
+          <div class="col-sm-6">
+            <a href="#" data-toggle="modal" data-target="#add_new_member"  data-dismiss="modal">
+              <div class="shadow px-4 py-4 mt-3 rounded text-center" style="background: linear-gradient(90deg, rgba(5,65,107,1) 0%, rgba(148,11,120,1) 100%); color:white;">
+              <h4 class="option-title"><b>Add Member</b></h4> 
             </div>
+             </a>
+            </div>
+          
+          <div class="col-sm-6">
+            <a href="#" data-toggle="modal" data-target="#add_new_guest"  data-dismiss="modal">
+            <div class="shadow px-4 py-4 mt-3 rounded text-center" style="background: linear-gradient(90deg, rgba(5,65,107,1) 0%, rgba(148,11,120,1) 100%); color:white;">
+              <h4 class="option-title"><b>Add Guest</b></h4> 
+            </div>
+             </a>
+          </div>
         </div>
+        
+        <!-- Option 2: Add Guest -->
+         
+      </div>
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
     </div>
+  </div>
+</div>
 
+
+
+  <div class="modal fade" id="add_new_guest" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gradient-primary text-light ">
+          <h5 class="modal-title" id="exampleModalLongTitle">Add Guest</h5>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <form method="post" action="{% url "user_add_guests_in_ticket" %}" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="row">
+                {% if available_guests %}
+                <label for="cmb_members">Select Guest</label>
+                <select name="cmb_member" id="cmb_member" class="form-control mt-2 border" required>
+                  <option value="">--- select ---</option>
+                  {% for i in available_guests %}
+                  <option value="{{i.id}}">{{i.full_name}}</option>
+                  {% endfor %}
+                </select>
+                <input type="hidden" name="txt_ticket_id" value="{{id}}">
+                {% else %}
+                <p class="alert alert-warning"> All Guests is added, Would you like to add more Guest in profile <a
+                    href="{% url "user_guests" %}">click here</a></p>
+                {% endif %}
+              </div>
+              <hr>
+              <center>
+                {% if available_guests %}
+                <input type="submit" id="btnCreateSubmit" value="Submit"
+                  class="btn bg-gradient-primary text-light"></input>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                {% else %}
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                {% endif %}
+              </center>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="add_new_member" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-gradient-primary text-light ">
+          <h5 class="modal-title" id="exampleModalLongTitle">Add Member</h5>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <form method="POST" enctype="multipart/form-data" action="{% url "user_add_member_in_ticket" %}">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="form-group">
+                    <div class="row">
+                      <div class="col-md-8">
+                        <label for="txt_search">Search Member</label>
+                        <input type="text" class="form-control" id="txt_member_id" placeholder="Enter Member ID">
+                      </div>
+                      <div class="col-md-4">
+                        <a href="#" id="btn_get_details" class="btn btn-warning w-100  mt-4" onclick=get_member_details()>Get Details</a>
+                        <button class="btn btn-secondary mt-3 px-4"  id="btn_get_details_loading" type="button" style="display: none;"  disabled>
+                          <span class="spinner-grow spinner-grow-sm " role="status" aria-hidden="true"></span>
+                          Loading....
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-12 mt-3">
+                  <div class="form-group">
+                    <label for="txt_member_name">Member Name</label>
+                    <input type="text" class="form-control" id="txt_member_name" placeholder="Member Name" readonly>
+                    <input type="hidden" name="hidden_member_id" id="hidden_member_id">
+                    <input type="hidden" name="txt_ticket_id" id="txt_ticket_id" value="{{id}}">
+                  </div>
+                </div>
+              </div>
+              
+      <!-- Modal footer -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <input type="submit" class="btn btn-success px-5" value="Submit">
+              </div> 
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+  function get_member_details() {
+    $('#btn_get_details').hide(); // Hide the original button
+    $('#btn_get_details_loading').show(); // Show the loading button
+    var member_id = $('#txt_member_id').val();
+    $('#hidden_member_id').val(member_id);
+
+    $.ajax({
+        url: '/user/get_member_details_for_booking/',  // Replace with your actual endpoint
+        data: {'member_id': member_id},
+        type: 'GET',
+        success: function (data) {
+            if (data.first_name) {
+                $('#txt_member_name').val(data.first_name);
+                $('#btn_get_details_loading').hide(); // Show the loading button
+                $('#btn_get_details').show(); // Hide the original button
+          } else {
+                $('#btn_get_details_loading').hide(); // Show the loading button
+                $('#btn_get_details').show(); // Hide the original button
+                $('#txt_member_name').val("");
+                alert("User not found or first name missing."); // Or handle the error in a different way
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            console.error("Error:", errorThrown);
+            $('#txt_member_name').val("");
+                $('#btn_get_details_loading').hide(); // Show the loading button
+                $('#btn_get_details').show(); // Hide the original button
+            alert("Member not found with this id"); // Or handle the error in a different way
+        }
+    });
+}
+
+  </script>
   {% endblock content %}
-  </body>
-
-  </html>
+ 

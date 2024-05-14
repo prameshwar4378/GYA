@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from functools import wraps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction
+from django.http import JsonResponse
+
 
 def user_is_member(view_func):
     @wraps(view_func)
@@ -25,26 +27,26 @@ def user_is_member(view_func):
 @login_required
 def user_dashboard(request):
     print(request.user)
-    family_member_count=FamilyMember.objects.filter(user=request.user).count()
+    guests_count=Guest.objects.filter(user=request.user).count()
     participated_events=Ticket.objects.filter(user=request.user,is_paid=True).count()
     context={
-        "family_member_count":family_member_count,
+        "guests_count":guests_count,
         "participated_events":participated_events,
     }
     return render(request,"user_dashboard.html",context)
 
    
 @login_required
-def family_member(request):
+def guests(request):
     try:
-        form = FamilyMemberForm()
-        # Ensure only the user's family members are fetched
-        data = FamilyMember.objects.filter(user=request.user).select_related().order_by("id")
+        form = GuestForm()
+        # Ensure only the user's Guests are fetched
+        data = Guest.objects.filter(user=request.user).select_related().order_by("id")
         context = {
             "form": form,
             "data": data
         } 
-        return render(request, "family_member.html", context)
+        return render(request, "guests.html", context)
     except ObjectDoesNotExist:
         return render(request, "404.html")
     except Exception as e: 
@@ -53,60 +55,60 @@ def family_member(request):
 
    
 @login_required
-def user_create_family_member(request):
+def user_create_guests(request):
     if request.method == 'POST':
-        form = FamilyMemberForm(request.POST)
+        form = GuestForm(request.POST)
         if form.is_valid():
             try:
-                family_member = form.save(commit=False)
-                family_member.user = request.user  # Assign the current user
-                family_member.save()
-                messages.success(request, "Family Member Created Successfully")
-                return redirect('/user/family_member')
+                guests = form.save(commit=False)
+                guests.user = request.user  # Assign the current user
+                guests.save()
+                messages.success(request, "Guest Created Successfully")
+                return redirect('/user/guests')
             except (IntegrityError, DatabaseError) as e:
-                messages.error(request, "There was an error saving the family member. Please try again.")
-                return render(request, 'family_member_create.html', {'form': form})
+                messages.error(request, "There was an error saving the guest. Please try again.")
+                return render(request, 'guests_create.html', {'form': form})
         else:
-            return render(request, 'family_member.html', {'form': form})
+            return render(request, 'guests.html', {'form': form})
     else:
-        return redirect('/user/family_member')
+        return redirect('/user/guests')
     
 
     
 @login_required
-def update_family_member(request):
+def update_guests(request):
     if request.method == 'POST':
-        family_member_id = request.POST.get('txt_id')
-        family_member = get_object_or_404(FamilyMember, id=family_member_id)
+        guests_id = request.POST.get('txt_id')
+        guests = get_object_or_404(Guest, id=guests_id)
         try:
-            form = FamilyMemberForm(request.POST, instance=family_member)
+            form = GuestForm(request.POST, instance=guests)
             if form.is_valid():
                 form.save()
                 messages.success(request, "Record Updated Successfully")
-                return redirect("/user/family_member")
+                return redirect("/user/guests")
             else:
-                return render(request, 'update_family_member.html', {'form': form})
+                return render(request, 'update_guests.html', {'form': form})
         except (IntegrityError, DatabaseError) as e:
             messages.error(request, "There was a problem saving the update. Please try again.")
-            return render(request, 'update_family_member.html', {'form': form})
-    return redirect("/user/family_member")
+            return render(request, 'update_guests.html', {'form': form})
+    return redirect("/user/guests")
 
 
 @login_required
-def delete_family_member(request, id):
+def delete_guests(request, id):
     try:
         with transaction.atomic():
-            family_member = FamilyMember.objects.get(id=id)
-            family_member.delete()
-            messages.success(request, "Family member deleted successfully.")
-            return redirect("/user/family_member")
+            guests = Guest.objects.get(id=id)
+            guests.delete()
+            messages.success(request, "Guest deleted successfully.")
+            return redirect("/user/guests")
     except ObjectDoesNotExist:
-        # If the family member does not exist, handle the error
-        messages.error(request, "Family member not found.")
+        # If the guest does not exist, handle the error
+        messages.error(request, "Guest not found.")
         return render(request, '404.html', status=404)
     except IntegrityError:
         # Handle any potential integrity errors
-        messages.error(request, "Database integrity error occurred while deleting the family member.")
+        messages.error(request, "Database integrity error occurred while deleting the guest.")
         return render(request, '500.html', {'error': 'Integrity Error'}, status=500)
     except Exception as e:
         # Log the exception if needed and provide a user-friendly error page
@@ -144,37 +146,30 @@ def event_details(request,id):
 
 @user_is_member    
 @login_required
-def customize_family_member_for_booking(request, id):
+def event_ticket_prices(request, id):
     try:
         event = get_object_or_404(Event, id=id)
-
+        event_price=EventTicketPrice.objects.get(event=event)
         if request.method == 'POST':
-            form = FamilyMemberSelectionTiketForm(request.user, request.POST)
-            if form.is_valid():
-                selected_members = form.cleaned_data['members']
-                if not selected_members:
-                    messages.warning(request, "At least one member is required")
-                    return redirect(f'/user/customize_family_member_for_booking/{id}')
-
                 ticket = Ticket.objects.create(user=request.user, event=event, is_paid=False)
-
-                for member in selected_members:
-                    BookingMembers.objects.create(ticket=ticket, family_member=member)
-
+                BookingMembers.objects.create(ticket=ticket,member=request.user)
                 return redirect(f'/user/ticket_overview/{ticket.id}')
-
-        else:
-            form = FamilyMemberSelectionTiketForm(request.user)
-
-        return render(request, 'user_customize_family_member_for_booking.html', {
-            'form': form, 
+        return render(request, 'user_event_ticket_prices.html', { 
             "event_id": id, 
-            "event": event
+            "event": event,
+            "event_price":event_price
         })
 
     except Exception as e: 
         return render(request, "404.html", status=404)
  
+def get_member_details_for_booking(request):
+    member_id = request.GET.get('member_id')
+    user_profile = get_object_or_404(UserProfile, member_id=member_id)
+    user = user_profile.user
+    data = {'first_name': user.first_name}
+    return JsonResponse(data)
+
 @user_is_member    
 @login_required
 def ticket_overview(request, id):
@@ -182,93 +177,104 @@ def ticket_overview(request, id):
     ticket = get_object_or_404(Ticket, id=id)
     event = get_object_or_404(Event, id=ticket.event.id)
     ticket_members = BookingMembers.objects.filter(ticket=ticket)
+    event_price = EventTicketPrice.objects.get(event=event)
 
     # To get members with their pricing details
-    members_with_price = []
+    guests_with_price = []
+    member_with_price=[]
     total_price = 0  # Initialize the total price counter
 
     # Set to track IDs of members already in the ticket
-    member_ids_in_ticket = set()
+    gests_ids_in_ticket = set()
 
-    for member in ticket_members:
-        member_ids_in_ticket.add(member.family_member.id)  # Collecting IDs of members already in the ticket
-        try:
-            event_price = EventTicketPrice.objects.get(
-                event=event,
-                min_age__lte=member.family_member.age,
-                max_age__gte=member.family_member.age
-            )
-            price = event_price.price
-        except EventTicketPrice.DoesNotExist:
-            price = 0  # Handling the case where no price fits the age range
-
-        members_with_price.append({
-            'member': member.family_member,
-            'price': price,
-            "member_id": member.id
-        })
-        total_price += price  # Accumulating the total price
-
-    # Fetch only those family members who are not yet added to this ticket
-    available_family_members = FamilyMember.objects.filter(user=request.user).exclude(id__in=member_ids_in_ticket)
+    for i in ticket_members:
+        if i.guests:
+            gests_ids_in_ticket.add(i.guests.id)  # Collecting IDs of members already in the ticket
+            price = event_price.guest_price 
+            guests_with_price.append({
+                'guest': i.guests,
+                'price': price,
+                "guest_id": i.id
+            })
+            total_price += price  # Accumulating the total price
+            print("is Guest ")
+        elif i.member:  # Handling the case where no price fits the age range
+            price = event_price.member_price 
+            member_with_price.append({
+                'member': i.member,
+                'price': price,
+                "member_id":i.id
+            })
+            total_price += price  # Accumulating the total price
+            print("is Member ")
  
+    # Fetch only those Guests who are not yet added to this ticket
+    available_guests = Guest.objects.filter(user=request.user).exclude(id__in=gests_ids_in_ticket)
+    
+    print(member_with_price)
+
     return render(request, 'user_ticket_overview.html', {
-        "members_with_price": members_with_price,
+        "guests_with_price": guests_with_price,
+        "member_with_price": member_with_price,
         "event": event,
         "total_price": total_price,
-        "ticket_id": id,
-        "available_family_members": available_family_members,  # Pass the available family members to the template
+        "id": id,
+        "available_guests": available_guests,  # Pass the available Guests to the template
     })
 
-def delete_family_member_from_ticket(request,id):
+def delete_member_and_guest_from_ticket(request,id):
         # Get the ticket id from the request
         member=get_object_or_404(BookingMembers,id=id)
         ticket_id=member.ticket.id
         member=member.delete()
         return redirect(f'/user/ticket_overview/{ticket_id}')  
 
-def add_family_member_in_ticket(request):
+def add_guests_in_ticket(request):
        if request.method=="POST":
           member=request.POST.get("cmb_member")
-          ticket_id=request.POST.get("txt_ticket_id")
-          print("Family Member", member)
-          print("Ticket",ticket_id)
-          member_instance=get_object_or_404(FamilyMember,id=member)
+          ticket_id=request.POST.get("txt_ticket_id") 
+          member_instance=get_object_or_404(Guest,id=member)
           ticket_instance=get_object_or_404(Ticket,id=ticket_id)
-          BookingMembers.objects.create(ticket=ticket_instance,family_member=member_instance)
+          BookingMembers.objects.create(ticket=ticket_instance,guests=member_instance)
        return redirect(f'/user/ticket_overview/{ticket_id}')    
-            
+
+
+def add_member_in_ticket(request):
+       if request.method=="POST":
+          member_id=request.POST.get("hidden_member_id")  
+          ticket_id=request.POST.get("txt_ticket_id") 
+          member_instance=get_object_or_404(UserProfile,member_id=member_id)
+          ticket_instance=get_object_or_404(Ticket,id=ticket_id)
+          if BookingMembers.objects.filter(ticket=ticket_instance,member=member_instance.user).exists():
+                messages.warning(request,"Member alredy exist in the ticket")
+                return redirect(f'/user/ticket_overview/{ticket_id}')    
+          BookingMembers.objects.create(ticket=ticket_instance,member=member_instance.user)
+       return redirect(f'/user/ticket_overview/{ticket_id}')    
+                        
 @user_is_member    
 @login_required
 def bookings(request):
     try:    
         tickets = Ticket.objects.filter(user=request.user).select_related()
-        tickets_details = []
+        tickets_details = [] 
         for ticket in tickets:
             event = ticket.event
             ticket_members = BookingMembers.objects.filter(ticket=ticket)
-            member_count = ticket_members.count()
+            member_count = ticket_members.filter(member__isnull=False).count()
+            guest_count = ticket_members.filter(guests__isnull=False).count()
             payment_status = True if ticket.is_paid else False
             
             # Calculate total price
-            total_price = 0
-            for member in ticket_members:
-                try:
-                    event_price = EventTicketPrice.objects.get(
-                        event=event, 
-                        min_age__lte=member.family_member.age, 
-                        max_age__gte=member.family_member.age
-                    )
-                    price = event_price.price
-                except EventTicketPrice.DoesNotExist:
-                    price = 0  # Decide what to do if no price is available
-                    
-                total_price += price
+            total_price = ticket.paid_amount
+             
+                
             tickets_details.append({
                 'event': event.title,
                 'member_count': member_count,
+                'guest_count':guest_count,
                 'payment_status': payment_status,
                 'price': total_price,
+                'ticket_file': ticket.ticket_file,
                 'id': ticket.id,  # Store ticket ID for use in actions like Delete
                 'ticket_id': ticket.ticket_id,  # Store ticket ID for use in actions like Delete
             })
@@ -291,18 +297,25 @@ def delete_ticket(request,id):
 
 @user_is_member    
 @login_required
-def pay_event_price(request, id):
+def pay_event_price(request):
     try:
+        if request.method=="POST":
+            id = request.POST.get('txt_id')
+            amount=request.POST.get("txt_amount")
+            print("Ticket id = ", id)
+            print("Amount", amount)
         # Using get_object_or_404 ensures that a 404 error is returned if no Ticket is found
-        ticket = get_object_or_404(Ticket, id=id)
+            ticket = get_object_or_404(Ticket, id=id)
 
         # Check if the user is allowed to pay for this ticket
-        if request.user != ticket.user:
-            return redirect('404.html')  # Redirect to an error page or appropriate view
+            if request.user != ticket.user:
+                return redirect('404.html')  # Redirect to an error page or appropriate view
 
         # Update the payment status of the ticket
-        ticket.is_paid = True
-        ticket.save()
+            ticket.is_paid = True
+            ticket.paid_amount=amount
+            ticket.save()
+            messages.success(request,"Ticket booking Succefully...!")
 
         # Redirect to the bookings page after payment
         return redirect("/user/bookings")

@@ -60,7 +60,7 @@
                                 </div>
                                
                                 
-                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_new_student"><i
+                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#create_new_event"><i
                                 class="mdi mdi-file-pdf"></i> Add New</a>
  
                     </div>
@@ -72,7 +72,7 @@
 
 
 
-    <div class="modal fade" id="add_new_student" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    <div class="modal fade" id="create_new_event" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:1000px;">
             <div class="modal-content">
@@ -109,13 +109,10 @@
                                 <div class="col-sm-6">
                                     {{create_event_form.status|as_crispy_field}}
                                 </div>
-                                <div class="col-sm-4">
-                                    {{create_event_form.capacity|as_crispy_field}}
-                                </div>
-                                <div class="col-sm-4">
-                                    {{create_event_form.category|as_crispy_field}}
-                                </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-6">
+                                    {{create_event_form.ticket_price|as_crispy_field}}
+                                </div> 
+                                <div class="col-sm-6">
                                     {{create_event_form.url|as_crispy_field}}
                                 </div>
 

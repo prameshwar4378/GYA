@@ -32,7 +32,7 @@
                       <p class="card-text">Date : {{ event.start_time }}</p>
                       <hr>
                       <a href="{% url "user_event_details" event.id %}" class="btn btn-primary">Read More</a>
-                      <a href="{% url "user_customize_family_member_for_booking" event.id %}" class="btn btn-primary">Book Your Tickets</a>
+                      <a href="{% url "user_event_ticket_prices" event.id %}" class="btn btn-primary">Book Your Tickets</a>
                   </div>
               </div>
           </div>

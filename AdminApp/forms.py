@@ -13,9 +13,9 @@ GENDER = (
 class RegistrationForm(forms.ModelForm): 
     phone_number = forms.IntegerField(widget=forms.NumberInput(attrs={'type': 'number'}))
     full_name = forms.CharField(max_length=50)
-    gender = forms.ChoiceField(choices=GENDER)  # Use ChoiceField for choices
-    age = forms.IntegerField()  # Removed invalid max_length argument
-     
+    gender = forms.ChoiceField(choices=GENDER)   
+    dob = forms.DateField(widget=forms.NumberInput(attrs={'type': 'date'}),required=True)  
+
     class Meta:
         model = User
         fields = ['email', ]
@@ -26,7 +26,7 @@ class RegistrationForm(forms.ModelForm):
         self.fields['phone_number'].required = True
         self.fields['full_name'].required = True
         self.fields['gender'].required = True
-        self.fields['age'].required = True
+        self.fields['dob'].required = True
 
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
@@ -47,15 +47,15 @@ class RegistrationForm(forms.ModelForm):
         user.set_password("Pass@123")
         if commit:
             user.save()
-            family_member = FamilyMember(
+            guests = Guest(
                 user=user,
                 name=self.cleaned_data['full_name'],
                 mobile=user['phone_number'],  # assuming you want to use the same as phone_number
                 gender=self.cleaned_data['gender'],
-                age=self.cleaned_data['age'],
-                relation=self.cleaned_data['relation']
+                dob=self.cleaned_data['dob'], 
+                member_id=self.cleaned_data['member_id'], 
             )
-            family_member.save()
+            guests.save()
         return user
 
 
@@ -74,7 +74,7 @@ class ComiteeMemberForm(forms.ModelForm):
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ['title', 'description', 'location', 'start_time', 'end_time', 'organizer', 'status', 'capacity', 'category', 'url']
+        fields = ['title', 'description', 'location', 'start_time', 'end_time', 'organizer', 'status', 'ticket_price', 'url']
         widgets = {
             'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
             'end_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
@@ -86,7 +86,22 @@ class EventThumbnailForm(forms.ModelForm):
         model = EventThumbnail
         fields = ['thumbnail']
  
+
+class EventTicketPriceForm(forms.ModelForm):
+    class Meta:
+        model = EventTicketPrice
+        fields = ["member_price","guest_price"]
  
+
+class UploadTicketFileForm(forms.ModelForm):
+    class Meta:
+        model = Ticket
+        fields = ["ticket_file"]
+        labels={
+            "ticket_file":"Upload Ticket"
+        }
+ 
+
 
 class EventImagesBrochureForm(forms.ModelForm):
     class Meta:
@@ -116,11 +131,6 @@ class PhotoGalleryForm(forms.ModelForm):
     class Meta:
         model = PhotoGallery
         fields = ['caption', 'image']
- 
-class EventTicketPriceForm(forms.ModelForm):
-    class Meta:
-        model = EventTicketPrice
-        fields = ['min_age', 'max_age', 'price']
  
  
 class LoginForm(forms.Form):

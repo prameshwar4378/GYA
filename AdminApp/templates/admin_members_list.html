@@ -85,9 +85,9 @@
                                         <th scope="col" class="text-center text-white">Sr.No</th>
                                         <th scope="col" class="text-center text-white">Full Name</th>
                                         <th scope="col" class="text-center text-white">Gender</th>
-                                        <th scope="col" class="text-center text-white">Age</th>
+                                        <th scope="col" class="text-center text-white">Date of Birth</th>
                                         <th scope="col" class="text-center text-white">Total Members</th>
-                                        <th scope="col" class="text-center text-white">Email</th>
+                                        <th scope="col" class="text-center text-white">Is Member</th>
                                         <th scope="col" class="text-center text-white">Actions</th>
                                     </tr>
                                 </thead>
@@ -96,14 +96,14 @@
                                     {% for r in data %}
                                     <tr>
                                         <td class="text-center">{{ forloop.counter }}</td>
-                                        <td class="text-center">{{ r.full_name }}</td>
-                                        <td class="text-center">{{ r.gender }}</td>
-                                        <td class="text-center">{{ r.age }}</td>
+                                        <td class="text-center">{{ r.first_name }}</td>
+                                        <td class="text-center">{{ r.userprofile.gender }}</td>
+                                        <td class="text-center">{{ r.userprofile.dob }}</td>
                                         <td class="text-center">{{r.total_members }}</td>
-                                        <td class="text-center">{{r.user.email }}</td>
+                                        <td class="text-center">{{r.userprofile.is_member }}</td>
                                         <td>
                                             <center>
-                                                <a href="{% url "admin_member_details" r.user.id %}" class="btn btn-primary px-3">Read more</a>
+                                                <a href="{% url "admin_member_details" r.id %}" class="btn btn-primary px-3">Manage</a>
                                                 <a href="" class="btn btn-danger px-3">Delete</a>
                                             </center>
                                         </td>

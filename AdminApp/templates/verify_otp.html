@@ -38,15 +38,11 @@
                      <br><br>
                     <div class="otp-form p-4" id="otp_verification_form">
                         <h2 class="mb-4">Verify OTP</h2>
-                            
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-danger">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        {% endif %} 
-    
+{% comment %}                              
+                                <div class="alert alert-success">
+                                   Hello <b>{{ user.first_name }}</b>, <br>
+                                    Your OTP is : <b>{{user.otp.otp}}</b>
+                                </div>  {% endcomment %}
                         <form id="otp_verification_form"  onsubmit="submitOTPForm()" method="post" action="{% url "verify_otp" %}">
                             {% csrf_token %}
                             <label for="txt_otp">Enter OTP:</label>

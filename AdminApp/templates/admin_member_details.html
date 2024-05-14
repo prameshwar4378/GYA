@@ -9,6 +9,7 @@
         <h1>Member Details</h1>
         <div class="row">
             <div class="col">
+                <hr>
             </div>
         </div>
     </div><!-- End Page Title -->
@@ -17,33 +18,110 @@
 
     <section class="section dashboard">
         <div class="row">
+            
+            <div class="col-sm-6  py-3 mb-1">
+                <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                    <span style="color:gray;">Name</span>
+                    <hr style="margin:4px; margin-bottom:10px;">
+                    <h5><b>{{member_data.first_name}}</b></h5>
+                </div>
+            </div>
+
+            <div class="col-sm-3  py-3 mb-1">
+                <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                    <span style="color:gray;">Member ID</span>
+                    <hr style="margin:4px; margin-bottom:10px;">
+                    <h5>{{member_data.userprofile.member_id}}</h5>
+                </div>
+            </div>
+
+            <div class="col-sm-3  py-3 mb-1">
+                <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                    <span style="color:gray;">Date of Birth</span>
+                    <hr style="margin:4px; margin-bottom:10px;">
+                    <h5>{{member_data.userprofile.dob}}</h5>
+                </div>
+            </div>
+
+            
+            <div class="col-sm-6  py-3 mb-1">
+                <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                    <span style="color:gray;">Mobile Number</span>
+                    <hr style="margin:4px; margin-bottom:10px;">
+                    <h5>{{member_data.otp.phone_number}}</h5>
+                </div>
+            </div>
+
+            
+            <div class="col-sm-6  py-3 mb-1">
+                <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                    <span style="color:gray;">Email</span>
+                    <hr style="margin:4px; margin-bottom:10px;">
+                    <h5>{{member_data.email}}</h5>
+                </div>
+            </div>
+
+            <div class="col-sm-3  py-3 mb-1">
+                <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                    <span style="color:gray;">Gender</span>
+                    <hr style="margin:4px; margin-bottom:10px;">
+                    <h5>{{member_data.userprofile.gender}}</h5>
+                </div>
+            </div>
+
+            <div class="col-sm-3  py-3 mb-1">
+                <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                    <span style="color:gray;">Is Member</span>
+                    <hr style="margin:4px; margin-bottom:10px;">
+                    <h5>{{member_data.userprofile.is_member}}</h5>
+                </div>
+            </div>
+
+
+            <div class="col-sm-3  py-3 mb-1">
+                <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                    <span style="color:gray;">Membership Payment Date</span>
+                    <hr style="margin:4px; margin-bottom:10px;">
+                    <h5>{{member_data.userprofile.paid_date}}</h5>
+                </div>
+            </div>
+
+
+            <div class="col-sm-3  py-3 mb-1">
+                <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                    <span style="color:gray;">Registration Date</span>
+                    <hr style="margin:4px; margin-bottom:10px;">
+                    <h5>{{member_data.userprofile.registration_date}}</h5>
+                </div>
+            </div>
 
             <!-- Left side columns -->
             <div class="col-lg-12">
-                <div style="padding:2%">
+                <div style="padding:0px;">
                     <!-- Left side columns -->
                     <div>
                         <div class="" style="overflow:scroll;">
                             <table id="example" class="table table-striped"
                                 style="overflow:scroll;  width:100%; min-width: max-content;">
+                                <h4>Guest List</h4>
                                 <thead>
                                     <tr style="background:#000">
                                         <th scope="col" class="text-center text-white">Sr.No</th>
                                         <th scope="col" class="text-center text-white">Full Name</th>
                                         <th scope="col" class="text-center text-white">Gender</th>
-                                        <th scope="col" class="text-center text-white">Age</th>
+                                        <th scope="col" class="text-center text-white">DOB</th>
                                         <th scope="col" class="text-center text-white">Relation</th>
                                         <th scope="col" class="text-center text-white">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% if data %}
-                                    {% for r in data %}
+                                    {% if guest_data %}
+                                    {% for r in guest_data %}
                                     <tr>
                                         <td class="text-center">{{ forloop.counter }}</td>
                                         <td class="text-left">{{ r.full_name }}</td>
                                         <td class="text-center">{{ r.gender }}</td>
-                                        <td class="text-center">{{ r.age }}</td>
+                                        <td class="text-center">{{ r.dob }}</td>
                                         <td class="text-center">{{r.relation }}</td>
                                         <td>
                                             <center>

@@ -2,20 +2,23 @@
 from django import forms
 from AdminApp.models import *
 
-class FamilyMemberForm(forms.ModelForm):
+class GuestForm(forms.ModelForm):
     class Meta:
-        model = FamilyMember
-        fields = ['full_name', 'gender', 'age', 'relation']
+        model = Guest
+        fields = ['full_name', 'gender', 'dob', 'relation']
+        widgets = {
+            'dob': forms.DateInput(attrs={'type': 'date'}),
+        }
  
  
 
-class FamilyMemberSelectionTiketForm(forms.Form):
-    members = forms.ModelMultipleChoiceField(
-        queryset=FamilyMember.objects.none(),  # Initial empty queryset
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
+# class GuestSelectionTiketForm(forms.Form):
+#     members = forms.ModelMultipleChoiceField(
+#         queryset=Guest.objects.none(),  # Initial empty queryset
+#         widget=forms.CheckboxSelectMultiple,
+#         required=False
+#     )
 
-    def __init__(self, user, *args, **kwargs):
-        super(FamilyMemberSelectionTiketForm, self).__init__(*args, **kwargs)
-        self.fields['members'].queryset = FamilyMember.objects.filter(user=user)
+#     def __init__(self, user, *args, **kwargs):
+#         super(GuestSelectionTiketForm, self).__init__(*args, **kwargs)
+#         self.fields['members'].queryset = Guest.objects.filter(user=user)

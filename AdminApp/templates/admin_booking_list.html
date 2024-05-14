@@ -116,7 +116,7 @@
                                         <th scope="col" class="text-center text-white">Booking ID</th>
                                         <th scope="col" class="text-center text-white">Amount </th>
                                         <th scope="col" class="text-center text-white">Is Paid </th>
-                                        <th scope="col" class="text-center text-white">Event</th>
+                                        <th scope="col" class="text-center text-white">Event ID</th>
                                         <th scope="col" class="text-center text-white">Booking Date</th>
                                         <th scope="col" class="text-center text-white">Actions</th>
                                     </tr>
@@ -125,9 +125,9 @@
                                     {% for ticket in tickets_details %}
                                     <tr>
                                         <td class="text-center">{{ forloop.counter }}</td>
-                                        <td class="text-center">{{ ticket.name }}</td>
-                                        <td class="text-center">{{ ticket.member_count }}</td>
-                                        <td class="text-center">{{ ticket.ticket_id }}</td>
+                                        <td class="text-center">{{ ticket.ticket.user.first_name }}</td>
+                                        <td class="text-center">{{ ticket.member_count }}</td> 
+                                        <td class="text-center">{{ ticket.ticket.ticket_id }}</td>
                                         <td class="text-center">{{ ticket.price | default:"N/A" }}</td>
                                         <td class="">
                                             {% if ticket.is_paid %}
@@ -139,7 +139,7 @@
                                         <td class="text-center">{{ ticket.event.title | default:"No Event" }}</td>
                                         <td class="text-center">{{ ticket.booking_date | date:"Y-m-d H:i" }}</td>
                                         <td class="text-center">
-                                            <a href="" class="btn btn-primary">Edit</a>
+                                            <a href="{% url 'admin_manage_booking' ticket.id %}" class="btn btn-warning" target="_blank">Manage</a>
                                             <a href="" class="btn btn-danger">Delete</a>
                                         </td>
                                     </tr>
