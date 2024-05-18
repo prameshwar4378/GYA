@@ -13,6 +13,23 @@ from django.db.models import Count
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.contrib.auth.decorators import login_required
+import re
+from functools import wraps
+
+
+
+def user_is_member(view_func):
+    @wraps(view_func)
+    @login_required  # Use the built-in login_required decorator
+    def _wrapped_view(request, *args, **kwargs):
+        user_profile = UserProfile.objects.filter(user=request.user).first()
+        if user_profile and user_profile.is_member:
+            return view_func(request, *args, **kwargs)
+        else:
+            logout(request)
+            return redirect('/login')
+    return _wrapped_view
 
 
 # Create your views here.
@@ -129,7 +146,7 @@ def register(request):
             phone_number=form.cleaned_data['phone_number']
             gender=form.cleaned_data['gender']
             dob=form.cleaned_data['dob']
-            UserProfile.objects.create(user=user,gender=gender,dob=dob)
+            UserProfile.objects.create(user=user,gender=gender,dob=dob,member_id="MBR0")
             generate_otp = ''.join(random.choices('0123456789', k=6))
             OTP.objects.create(user=user,phone_number=phone_number,otp=generate_otp)
 
@@ -226,7 +243,7 @@ def login_with_otp(request):
                             OTP.objects.filter(user=user_data).update(otp=generate_otp)
                             print("OTP Available calling")
                         else:
-                            OTP.objects.create(otp=generate_otp,user=user_data.id) 
+                            OTP.objects.create(otp=generate_otp,user=user_data) 
                             print("OTP Not Available calling")
 
                         print(generate_otp)
@@ -298,8 +315,12 @@ def verify_otp(request):
 def custom_logout(request):
     logout(request)
     return redirect("/login")
-
+  
+@user_is_member
+@login_required    
 def membership_payment(request):
+    user = request.user
+    print(user)
     if request.method == "POST":
         txt_amount = request.POST.get("txt_amount")
         if not txt_amount:
@@ -324,15 +345,15 @@ def booking_list(request):
         for ticket in tickets:
             event = ticket.event
             ticket_members = BookingMembers.objects.filter(ticket=ticket)
-            member_count = ticket_members.filter(member__isnull=False).count()
-            guest_count = ticket_members.filter(guests__isnull=False).count()
+            # member_count = ticket_members.filter(member__isnull=False).count()
+            # guest_count = ticket_members.filter(guests__isnull=False).count()
             
             payment_status = True if ticket.is_paid else False  
             # Calculate total price  
             tickets_details.append({
                 'ticket':ticket,
                 'event': event.title,
-                'member_count': member_count, 
+                'member_count': ticket_members.count(), 
                 'payment_status': payment_status,
                 'price': ticket.paid_amount,
                 'id': ticket.id,  # Store ticket ID for use in actions like Delete
@@ -361,8 +382,11 @@ def manage_booking(request,id):
         return render(request, "admin_manage_booking.html", {'data': context})
 
 
-def upload_ticket(request):
+def delete_booking(request,id):
+    Ticket.objects.get(id=id).delete()
+    return redirect("/admin/booking_list")
 
+def upload_ticket(request):
     if request.method == 'POST':
         id = request.POST.get("txt_id") 
         form = UploadTicketFileForm(request.POST, request.FILES)
@@ -405,6 +429,23 @@ def member_details(request,id):
     }
     return render(request, 'admin_member_details.html', context)
 
+@login_required
+def update_member_profile(request,id):
+    user_profile, created = UserProfile.objects.get_or_create(id=id)
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=user_profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Profile Updated Success")
+    else: 
+        form = UserProfileForm(instance=user_profile, user=request.user)
+    return render(request, 'admin_update_member_profile.html', {'form': form})
+
+
+def delete_member_user(request,id):
+    User.objects.get(id=id).delete()
+    return redirect("/admin/members_list/")
+
 
 def event_list(request):
     create_event_form = EventForm()
@@ -420,10 +461,10 @@ def create_event(request):
     if request.method == 'POST':
         form = EventForm(request.POST)
         if form.is_valid():
-            form.save()
+            event=form.save()
             messages.success(request,"Event Created Success")
-            return redirect('/admin/event_list')  # Assuming you have a URL named 'list' for listing events
-    else:
+            return redirect(f'/admin/event_details/{event.id}')  # Assuming you have a URL named 'list' for listing events
+    else: 
             messages.warning(request,"Error Getting")
             return redirect('/admin/event_list')  # Assuming you have a URL named 'list' for listing events
  
@@ -453,10 +494,8 @@ def delete_event(request,id):
 def add_event_ticket_price(request):
     event_id = request.POST.get("txt_event_id") 
     event = get_object_or_404(Event, id=event_id)
-    
-    # Get the existing EventTicketPrice instance for the event, if any
+       # Get the existing EventTicketPrice instance for the event, if any
     event_ticket_price = EventTicketPrice.objects.filter(event=event).first()
-
     if request.method == 'POST':
         form = EventTicketPriceForm(request.POST, instance=event_ticket_price)
         if form.is_valid():
@@ -580,3 +619,151 @@ def delete_photo_from_gallery(request,id):
 
 
 
+
+def advertisement_list(request):
+    advertisements = Advertisement.objects.all()
+    form=AdvertisementForm()
+    return render(request, 'admin_advertisements_list.html', {'advertisements': advertisements,"form":form})
+
+
+def create_advertisement(request):
+    if request.method == 'POST':
+        form = AdvertisementForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Advertisement Created Success")
+            return redirect('/admin/advertisement_list')
+    return redirect("/admin/advertisement_list/")
+
+
+def update_advertisement(request):
+    add_id=request.POST.get("txt_id")
+ 
+    add=get_object_or_404(Advertisement,id=add_id)
+    if request.method == 'POST':
+        form = AdvertisementForm(request.POST,instance=add)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Advertisement Updated Success")
+            return redirect('/admin/advertisement_list/')
+    return redirect("/admin/advertisement_list/")
+
+def delete_advertisement(request,id):
+    add = Advertisement.objects.get(id=id)
+    add.delete()
+    messages.success(request, "Record deleted successfully")
+    return redirect("/admin/advertisement_list/")
+
+
+def news_list(request):
+    news_form = NewsForm()
+    news_data = News.objects.all().order_by("-id")
+    context = {
+        "news_form": news_form,
+        "news_data": news_data,
+    }
+    return render(request, 'admin_news_list.html', context)
+
+def create_news(request):
+    if request.method == 'POST':
+        form = NewsForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "News Created Successfully")
+            return redirect('/admin/news_list')
+        else:
+            messages.warning(request, "Error Creating News")
+    return redirect('/admin/news_list')
+
+def update_news(request, id):
+    news_data = get_object_or_404(News, id=id)
+    if request.method == 'POST':
+        form = NewsForm(request.POST, request.FILES, instance=news_data)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "News Updated Successfully")
+        else:
+            messages.error(request, "Error Updating News")
+            return render(request, 'admin_update_news.html', {'form': form})
+    else:
+        form = NewsForm(instance=news_data)
+    return render(request, 'admin_update_news.html', {'form': form})
+
+def delete_news(request, id):
+    News.objects.get(id=id).delete()
+    messages.success(request, "News Deleted Successfully")
+    return redirect('/admin/news_list')
+
+
+def news_details(request, id):
+    news = get_object_or_404(News, id=id)
+    photos_videos = NewsPhotosVideos.objects.filter(news=news) 
+    video_data=[]
+    for embed_link in photos_videos:
+        embed_url= embed_link.video_link
+        video_id=extract_video_id(embed_url)
+        if video_id:
+            video_data.append(
+                {"thumbnail_url":f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
+                "video_url":f"https://www.youtube.com/embed/{video_id}",
+                "id":embed_link.id} 
+            )
+    form = NewsPhotosVideosForm()
+ 
+    return render(request, 'admin_news_details.html', {
+        'news': news,
+        'photos_videos': photos_videos,
+        'form': form,
+        'video_data': video_data,
+    })
+
+
+def extract_video_id(embed_url):
+    match = re.search(r"embed/([a-zA-Z0-9_-]+)", embed_url)
+    if match:
+        return match.group(1)
+    return None
+
+def create_news_photos_videos(request):
+    if request.method == 'POST':
+        form = NewsPhotosVideosForm(request.POST, request.FILES)
+        if form.is_valid():
+            image = form.cleaned_data.get('image')
+            video_link = form.cleaned_data.get('video_link')
+            video_id=extract_video_id(video_link)
+            if not image and not video_link:
+                messages.warning(request, "At least one of the fields (image or video) is required.")
+                return redirect(f'/admin/news_details/{request.POST.get("news")}')
+            elif not video_id:
+                messages.warning(request, "Enter only embeded code")
+                return redirect(f'/admin/news_details/{request.POST.get("news")}')
+            form.save()
+            messages.success(request, "Photo/Video Added Successfully")
+        else:
+            messages.error(request, "Error Adding Photo/Video")
+        return redirect(f"/admin/news_details/{request.POST.get('news')}")
+    else:
+        messages.warning(request, "Only POST method is allowed for this operation.")
+        return redirect("/admin/news_list")
+
+
+
+
+def delete_news_photos(request,id):
+    news_image = NewsPhotosVideos.objects.filter(id=id).first()
+    news_id=news_image.news.id
+    if news_image.video_link:
+       NewsPhotosVideos.objects.filter(id=id).update(image="")
+    else:
+        news_image.delete()
+    return redirect(f"/admin/news_details/{news_id}")
+
+
+def delete_news_video(request,id):
+    news = NewsPhotosVideos.objects.filter(id=id).first()
+    news_id=news.news.id
+    if news.image:
+       NewsPhotosVideos.objects.filter(id=id).update(video_link="")
+    else:
+        news.delete()
+    return redirect(f"/admin/news_details/{news_id}")

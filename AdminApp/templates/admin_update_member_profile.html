@@ -1,0 +1,35 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+
+</style>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Update Member Profile</h1>
+        <div class="row">
+            <div class="col">
+                <hr>
+            </div>
+        </div>
+    </div><!-- End Page Title -->
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <input type="submit" value="Submit" class="btn bg-gradient-primary text-light"></input>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</main><!-- End #main -->
+
+
+{% endblock content %}

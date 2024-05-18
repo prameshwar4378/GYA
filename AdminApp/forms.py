@@ -3,6 +3,7 @@ from .models import *
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
+from django.contrib import messages
 
 
 GENDER = (
@@ -59,6 +60,43 @@ class RegistrationForm(forms.ModelForm):
         return user
 
 
+class UserProfileForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=30, required=True, label="First Name")
+    email = forms.EmailField(required=True, label="Email")
+    phone_number = forms.CharField(max_length=15, required=True, label="Phone Number")
+
+    class Meta:
+        model = UserProfile
+        fields = ['member_id', 'dob', 'gender']
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        
+        if user:
+            self.fields['first_name'].initial = user.first_name
+            self.fields['email'].initial = user.email
+            try:
+                otp = OTP.objects.get(user=user)
+                self.fields['phone_number'].initial = otp.phone_number
+            except OTP.DoesNotExist:
+                self.fields['phone_number'].initial = ''
+
+    def save(self, commit=True):
+        user_profile = super(UserProfileForm, self).save(commit=False)
+        user = user_profile.user
+        
+        user.first_name = self.cleaned_data['first_name']
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+            user_profile.save()
+            otp, created = OTP.objects.get_or_create(user=user)
+            otp.phone_number = self.cleaned_data['phone_number']
+            otp.save()
+        
+        return user_profile
+    
 
 class ComiteeYearForm(forms.ModelForm):
     class Meta:
@@ -131,8 +169,25 @@ class PhotoGalleryForm(forms.ModelForm):
     class Meta:
         model = PhotoGallery
         fields = ['caption', 'image']
- 
- 
+
+class AdvertisementForm(forms.ModelForm):
+    class Meta:
+        model = Advertisement
+        fields = ['content', 'is_active', 'url']
+        
+class NewsForm(forms.ModelForm):
+    class Meta:
+        model = News
+        fields = ['title', 'content', 'thumbnail','date', 'is_active']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        } 
+
+class NewsPhotosVideosForm(forms.ModelForm):
+    class Meta:
+        model = NewsPhotosVideos
+        fields = ['news', 'image','video_link']
+        
 class LoginForm(forms.Form):
     username = forms.CharField(label='Username')
     password = forms.CharField(widget=forms.PasswordInput, label='Password')

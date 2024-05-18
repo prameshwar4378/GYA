@@ -36,7 +36,7 @@ class OTP(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    member_id = models.CharField(max_length=20, null=True, unique=True)
+    member_id = models.CharField(max_length=20, null=True,default=0)
     dob = models.DateField(auto_now=False, auto_now_add=False)
     gender = models.CharField(max_length=50, choices=GENDER, null=True)
     is_member = models.BooleanField(default=False)
@@ -79,14 +79,14 @@ class Guest(models.Model):
     gender = models.CharField(max_length=50, choices=GENDER)
     dob = models.DateField(auto_now_add=False,auto_now=False)
     relation = models.CharField(max_length=50, choices=RELATION)
-    phone_number = models.CharField(max_length=50, choices=RELATION)
+    phone_number = models.CharField(max_length=50)
  
     def __str__(self):
         return self.full_name
 
 class Event(models.Model):
     STATUS_CHOICES = (
-        ('planned', 'Planned'),
+        ('upcoming ', 'Upcoming '),
         ('active', 'Active'),
         ('completed', 'Completed'),
         ('canceled', 'Canceled'),
@@ -97,7 +97,7 @@ class Event(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     organizer =  models.CharField(max_length=100)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='planned')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='upcoming')
     url = models.URLField(blank=True, null=True)
     ticket_price = models.IntegerField(default=0)
 
@@ -145,7 +145,7 @@ class BookingMembers(models.Model):
 
 class EventThumbnail(models.Model):
     event = models.OneToOneField("Event", on_delete=models.CASCADE)
-    thumbnail = models.ImageField(upload_to="event_thumbnail/", blank=False, null=True)
+    thumbnail = models.ImageField(upload_to="event_thumbnail/", help_text="Recommended Size 1280 x 720 (landscape)", blank=False, null=True)
 
     def __str__(self):
         return f"{self.event.title} Thumbnail"
@@ -168,3 +168,45 @@ class PhotoGallery(models.Model):
         return f"{self.caption} Image"
     
 
+class Advertisement(models.Model):
+    content=models.TextField()
+    is_active = models.BooleanField(default=True)
+    url=models.URLField(max_length=200, blank=True, null=True)
+    def __str__(self):
+        return self.content
+
+class News(models.Model):
+    title=models.CharField(max_length=200)
+    content=models.TextField()
+    thumbnail = models.ImageField(upload_to="news_thumbnail/",  help_text="Recommended Size 1280 x 720 (landscape)", blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    date=models.DateField(null=True, auto_now=False, auto_now_add=False)
+    def __str__(self):
+        return self.title
+    
+class NewsPhotosVideos(models.Model):
+    news = models.ForeignKey(News, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="news_photos/", blank=True, null=True)
+    video_link = models.CharField(blank=True, null=True, help_text="Enter YouTube video link", max_length=255)
+    def __str__(self):
+        return f"{self.news.title} Photos and Videos"
+
+    def get_youtube_embed_url(self):
+        if self.video_link:
+            video_id = self.get_video_id()
+            print(video_id)
+            return f"https://www.youtube.com/embed/{video_id}"
+        return None
+
+    def get_video_id(self):
+        if self.video_link:
+            return self.video_link.split('v=')[-1]
+        return None
+
+    def video_thumbnail(self):
+        if self.video_link:
+            video_id = self.get_video_id()
+            return f"https://img.youtube.com/vi/{video_id}/0.jpg"
+        return None
+
+    

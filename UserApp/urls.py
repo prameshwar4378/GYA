@@ -20,5 +20,5 @@ urlpatterns = [
     path('bookings/', bookings, name='user_bookings'),
     path('delete_ticket/<int:id>', delete_ticket, name='user_delete_ticket'),
     path('pay_event_price/', pay_event_price, name='user_pay_event_price'),
-    
+    path('generate_free_ticket/<int:id>', generate_free_ticket, name='user_generate_free_ticket'),
 ]

@@ -128,7 +128,7 @@
                                         <td class="text-center">{{ ticket.ticket.user.first_name }}</td>
                                         <td class="text-center">{{ ticket.member_count }}</td> 
                                         <td class="text-center">{{ ticket.ticket.ticket_id }}</td>
-                                        <td class="text-center">{{ ticket.price | default:"N/A" }}</td>
+                                        <td class="text-center">{{ ticket.price | default:"0.00" }}</td>
                                         <td class="">
                                             {% if ticket.is_paid %}
                                             <span style="background:green; color:white;">Paid</span>
@@ -140,7 +140,7 @@
                                         <td class="text-center">{{ ticket.booking_date | date:"Y-m-d H:i" }}</td>
                                         <td class="text-center">
                                             <a href="{% url 'admin_manage_booking' ticket.id %}" class="btn btn-warning" target="_blank">Manage</a>
-                                            <a href="" class="btn btn-danger">Delete</a>
+                                            <a href="{% url "admin_delete_booking" ticket.id %}" class="btn btn-danger">Delete</a>
                                         </td>
                                     </tr>
                                     {% empty %}

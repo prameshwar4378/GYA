@@ -1,0 +1,159 @@
+{% extends "admin_base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+   
+</style>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>News Details</h1>
+        <div class="row">
+            <div class="col">
+            </div>
+        </div>
+    </div><!-- End Page Title -->
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="container" style="max-width:97%;">
+                    <div class="text-lg-end text-start">
+                                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_media"><i
+                                    class="mdi mdi-file-pdf"></i> Add Media</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <hr>
+
+    <div class="modal fade" id="add_media" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-light ">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Add Images Brochure</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <form method="post" id="add_media_form" action="{% url "admin_create_news_photos_videos" %}"
+                            enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {{form|crispy}}
+                                </div>
+                            </div>
+                            <center>
+                                <input type="submit" id="btnCreateSubmit" value="Submit"
+                                    class="btn bg-gradient-primary text-light"></input>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <section class="section dashboard">
+        <div class="row">
+
+            <!-- Left side columns -->
+            <div class="col-lg-12">
+                       
+                
+                <div class="container" style="padding:2%" >
+                    <!-- Left side columns -->
+                    <div>
+                            <div class=""  >
+                                <div class="row">
+                                    <div class="col-sm-12  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">News Title</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5><b>{{news.title}}</b></h5>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+
+                                <div class="row">
+                                    <div class="col-sm-12  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">Content</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5>{{news.content}}</h5>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="col-sm-4  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">Is Active</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5>{{news.is_active}}</h5>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="col-sm-4  py-3 mb-1">
+                                        <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">
+                                            <span style="color:gray;">Date</span>
+                                            <hr style="margin:4px; margin-bottom:10px;">
+                                            <h5>{{news.date}}</h5>
+                                        </div>
+                                    </div>
+                     
+                                </div>
+                            </div>
+                            <hr>
+                            <h2>News Photos</h2>
+                            <div class="row">
+                                <!-- Dynamically generated cards start -->
+                                {% for i in photos_videos %}
+                                {% if i.image %}
+                                <div class="col-12 col-sm-3 col-md-fifth mb-4">  <!-- Use the new custom class here -->
+                                    <div class="card shadow" style="height: 100%;">
+                                        <img src="/media/{{i.image}}" class="card-img-top">
+                                        <hr>
+                                        <a href="{% url "admin_delete_news_photos" i.id %}" class="btn btn-danger" style="position: absolute; bottom:2px; margin:5px;"> <i class="bi bi-trash"></i> </a>
+                                    </div> 
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                <!-- Dynamically generated cards end -->
+                            </div>
+
+                            <hr>
+                            <h2>News Videos</h2>
+                            <div class="row">
+                                <!-- Dynamically generated cards start -->
+                                {% for i in video_data %}
+
+                                <div class="col-12 col-sm-3 col-md-fifth mb-4">
+                                    <div class="card shadow" style="height: 100%;">
+                                        <img src="{{ i.thumbnail_url }}" class="card-img-top" alt="Video Thumbnail">
+                                        <hr>
+                                        <a href="{{ i.video_url }}" target="_blank" class="btn btn-primary" style="position: absolute; bottom:45px;  ">Watch Video</a>
+                                        <a href="{% url "admin_delete_news_video" i.id %}" class="btn btn-danger" style="position: absolute; bottom:2px; margin:5px;"> <i class="bi bi-trash"></i> </a>
+                                    </div> 
+                                </div>
+                                {% endfor %}
+                                <!-- Dynamically generated cards end -->
+                            </div>
+                            
+                    </div>
+                </div><!-- End Left side columns -->
+            </div>
+        </div><!-- End Left side columns -->
+
+    </section>
+ 
+
+</main><!-- End #main -->
+
+
+{% endblock content %}

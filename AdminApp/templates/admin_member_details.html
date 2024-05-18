@@ -14,7 +14,22 @@
         </div>
     </div><!-- End Page Title -->
  
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="container" style="max-width:97%;">
+                    <div class="text-lg-end text-start">
+                        <!-- Use text-lg-end for right alignment in large screens -->
+                        <a href="{% url "admin_update_member_profile" member_data.userprofile.id %}" class="btn btn-primary" ><i
+                                class="mdi mdi-filter"></i>Update Profile</a>
  
+                         <a href="{% url "admin_delete_member_user" member_data.id %}" class="btn btn-danger">  Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <section class="section dashboard">
         <div class="row">

@@ -69,7 +69,9 @@ def user_create_guests(request):
                 messages.error(request, "There was an error saving the guest. Please try again.")
                 return render(request, 'guests_create.html', {'form': form})
         else:
-            return render(request, 'guests.html', {'form': form})
+            data = Guest.objects.filter(user=request.user).select_related().order_by("id")
+            messages.warning(request, "Enter valid information")
+            return render(request, 'guests.html', {'form': form,'data':data})
     else:
         return redirect('/user/guests')
     
@@ -149,7 +151,12 @@ def event_details(request,id):
 def event_ticket_prices(request, id):
     try:
         event = get_object_or_404(Event, id=id)
-        event_price=EventTicketPrice.objects.get(event=event)
+        try:
+            event_price=get_object_or_404(EventTicketPrice,event=event)
+        except Exception:
+            EventTicketPrice.objects.create(event=event,member_price=0,guest_price=0)
+            event_price=get_object_or_404(EventTicketPrice,event=event)
+
         if request.method == 'POST':
                 ticket = Ticket.objects.create(user=request.user, event=event, is_paid=False)
                 BookingMembers.objects.create(ticket=ticket,member=request.user)
@@ -211,7 +218,7 @@ def ticket_overview(request, id):
     # Fetch only those Guests who are not yet added to this ticket
     available_guests = Guest.objects.filter(user=request.user).exclude(id__in=gests_ids_in_ticket)
     
-    print(member_with_price)
+    print(total_price)
 
     return render(request, 'user_ticket_overview.html', {
         "guests_with_price": guests_with_price,
@@ -220,8 +227,10 @@ def ticket_overview(request, id):
         "total_price": total_price,
         "id": id,
         "available_guests": available_guests,  # Pass the available Guests to the template
+        "ticket_id":id,
     })
 
+@login_required    
 def delete_member_and_guest_from_ticket(request,id):
         # Get the ticket id from the request
         member=get_object_or_404(BookingMembers,id=id)
@@ -229,6 +238,7 @@ def delete_member_and_guest_from_ticket(request,id):
         member=member.delete()
         return redirect(f'/user/ticket_overview/{ticket_id}')  
 
+@login_required    
 def add_guests_in_ticket(request):
        if request.method=="POST":
           member=request.POST.get("cmb_member")
@@ -238,7 +248,7 @@ def add_guests_in_ticket(request):
           BookingMembers.objects.create(ticket=ticket_instance,guests=member_instance)
        return redirect(f'/user/ticket_overview/{ticket_id}')    
 
-
+@login_required    
 def add_member_in_ticket(request):
        if request.method=="POST":
           member_id=request.POST.get("hidden_member_id")  
@@ -285,6 +295,7 @@ def bookings(request):
         return render(request, "404.html", status=404)
 
 # Delete a ticket
+@login_required    
 def delete_ticket(request,id):
     try:
         ticket=get_object_or_404(Ticket,id=id)
@@ -304,21 +315,32 @@ def pay_event_price(request):
             amount=request.POST.get("txt_amount")
             print("Ticket id = ", id)
             print("Amount", amount)
-        # Using get_object_or_404 ensures that a 404 error is returned if no Ticket is found
             ticket = get_object_or_404(Ticket, id=id)
-
-        # Check if the user is allowed to pay for this ticket
             if request.user != ticket.user:
                 return redirect('404.html')  # Redirect to an error page or appropriate view
-
-        # Update the payment status of the ticket
             ticket.is_paid = True
             ticket.paid_amount=amount
             ticket.save()
             messages.success(request,"Ticket booking Succefully...!")
-
-        # Redirect to the bookings page after payment
         return redirect("/user/bookings")
 
     except Exception as e: 
         return render(request, "404.html", status=404)
+    
+
+@user_is_member    
+@login_required
+def generate_free_ticket(request,id):
+    try:
+        ticket = get_object_or_404(Ticket, id=id)
+        if request.user != ticket.user:
+            return render(request, "404.html", status=404)
+        ticket.is_paid = True
+        ticket.paid_amount=0
+        ticket.save()
+        messages.success(request,"Ticket booking Succefully...!")
+        return redirect("/user/bookings")
+    except Exception as e: 
+        return render(request, "404.html", status=404)
+
+        

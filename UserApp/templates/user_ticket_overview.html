@@ -107,7 +107,11 @@
                 {% csrf_token %}
                 <input type="hidden" name="txt_id" value="{{id}}">
                 <input type="hidden" name="txt_amount" value="{{total_price}}">
+                {% if  total_price %}
                 <input type="submit" class="btn btn-warning" value="Pay Now">
+                {% else %}
+                <a href="{% url "user_generate_free_ticket" ticket_id %}" class="btn btn-warning">Generate Ticket</a>
+                {% endif %}
               </form> 
             </article>
           </div>
