@@ -16,6 +16,7 @@ from django.utils.html import strip_tags
 from django.contrib.auth.decorators import login_required
 import re
 from functools import wraps
+from .filters import *
 
 
 
@@ -285,7 +286,6 @@ def verify_otp(request):
 
         try:
             data = OTP.objects.get(user=user_id)
-            
             if int(data.otp) == int(user_otp):
                 print("OTP Verify Success")
                 user = data.user
@@ -316,7 +316,6 @@ def custom_logout(request):
     logout(request)
     return redirect("/login")
   
-@user_is_member
 @login_required    
 def membership_payment(request):
     user = request.user
@@ -333,36 +332,62 @@ def membership_payment(request):
     return render(request, 'membership_payment.html')
 
 
+def dashboard(request):
+    today = timezone.now().date()
+    todays_tickets_count = Ticket.objects.filter(booking_date__date=today).count()
+    active_event_count=Event.objects.filter(is_publish=True).count()
+    new_users_last_30_days = User.objects.filter(date_joined__gte=timezone.now()-timezone.timedelta(days=30)).count()
+    
+    event_status_chart=["Upcoming","Active","Completed","Canceled"]
+    event_status_count_chart=[]
+    all_events=Event.objects.select_related()
+    event_status_count_chart.append(all_events.filter(status="upcoming").count())
+    event_status_count_chart.append(all_events.filter(status="active").count())
+    event_status_count_chart.append(all_events.filter(status="completed").count())
+    event_status_count_chart.append(all_events.filter(status="canceled").count())
 
+    profiles_labels=["Members","Guests"]
+    profile_count=[]
+    profile_count.append(UserProfile.objects.filter(is_member=True).count())
+    profile_count.append(Guest.objects.count())
 
-def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
-
+    context={
+        'todays_tickets_count':todays_tickets_count,
+        'active_event_count':active_event_count,
+        'new_users_last_30_days':new_users_last_30_days,
+        'event_status_chart':event_status_chart,
+        'event_status_count_chart':event_status_count_chart, 
+        'profiles_labels':profiles_labels,
+        'profile_count':profile_count,
+    }
+    return render(request, 'admin_dashboard.html',context)
 
 def booking_list(request):
-        tickets = Ticket.objects.order_by("-booking_date").select_related()
-        tickets_details = []
-        for ticket in tickets:
-            event = ticket.event
-            ticket_members = BookingMembers.objects.filter(ticket=ticket)
-            # member_count = ticket_members.filter(member__isnull=False).count()
-            # guest_count = ticket_members.filter(guests__isnull=False).count()
-            
-            payment_status = True if ticket.is_paid else False  
-            # Calculate total price  
-            tickets_details.append({
-                'ticket':ticket,
-                'event': event.title,
-                'member_count': ticket_members.count(), 
-                'payment_status': payment_status,
-                'price': ticket.paid_amount,
-                'id': ticket.id,  # Store ticket ID for use in actions like Delete
-                'booking_date': ticket.booking_date,  # Store ticket ID for use in actions like Delete
-                'is_paid':ticket.is_paid,
-            })
+    booking_record = Ticket.objects.order_by("-booking_date").select_related()
+    Filter = Booking_List_Filter(request.GET, queryset=booking_record)
+    tickets = Filter.qs 
+    
+    tickets_details = []
+    for ticket in tickets:
+        event = ticket.event
+        ticket_members = BookingMembers.objects.filter(ticket=ticket)
+        member_count = ticket_members.filter(member__isnull=False).count()
+        guest_count = ticket_members.filter(guests__isnull=False).count()
+        
+        payment_status = ticket.is_paid
+        tickets_details.append({
+            'ticket': ticket,
+            'event': event.title,
+            'member_count': member_count,
+            'guest_count': guest_count,
+            'payment_status': payment_status,
+            'price': ticket.paid_amount,
+            'id': ticket.id,
+            'booking_date': ticket.booking_date,
+            'is_paid': ticket.is_paid,
+        })
 
-        return render(request, "admin_booking_list.html", {'tickets_details': tickets_details})
-
+    return render(request, "admin_booking_list.html", {'tickets_details': tickets_details, 'filter': Filter})
 
 def manage_booking(request,id):
         ticket = Ticket.objects.get(id=id)
@@ -490,6 +515,21 @@ def delete_event(request,id):
     return redirect("/admin/event_list")
 
  
+def update_event_publish_status(request):
+    if request.method == 'POST':
+          event_id = request.POST.get('txt_event_id') 
+          event_status = request.POST.get('event_is_publish')
+          event = Event.objects.get(id=event_id)
+          print(event_status)
+          if event_status == 'true':
+            event.is_publish = True
+          else:
+            event.is_publish = False
+          event.save()
+          return redirect(f"/admin/event_details/{event_id}")
+    else:
+        return redirect("/admin/event_list")
+
 
 def add_event_ticket_price(request):
     event_id = request.POST.get("txt_event_id") 
@@ -600,6 +640,8 @@ def photo_gallery_list(request):
 def create_photo_for_gallery(request):
     if request.method == 'POST':
         form = PhotoGalleryForm(request.POST, request.FILES)
+        video_link=form.cleaned_data['video_link']
+
         if form.is_valid():
             form.save()
             messages.success(request,"Photo Added Success")
@@ -612,12 +654,50 @@ def create_photo_for_gallery(request):
             messages.error(request,"Form is not valid")
             return redirect('/admin/photo_gallery_list')  # Assuming you have a URL named 'list' for listing events
 
-
+ 
 def delete_photo_from_gallery(request,id):
     PhotoGallery.objects.get(id=id).delete()
     return redirect("/admin/photo_gallery_list")
 
+def video_gallery_list(request): 
+    data = VideoGallery.objects.all()
+    video_data=[]
+    for embed_link in data:
+        embed_url= embed_link.video_link
+        video_id=extract_video_id(embed_url)
+        if video_id:
+            video_data.append(
+                {"thumbnail_url":f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
+                "video_url":f"https://www.youtube.com/embed/{video_id}",
+                "id":embed_link.id} 
+            )
+    form = VideoGalleryForm()
+    return render(request, 'admin_video_gallery_list.html', {'form': form, "video_data":video_data})
 
+
+def create_video_for_gallery(request):
+    if request.method == 'POST':
+        form = VideoGalleryForm(request.POST, request.FILES)
+        if form.is_valid(): 
+            video_link = form.cleaned_data.get('video_link')
+            video_id=extract_video_id(video_link)
+
+            if not video_id:
+                messages.warning(request, "Enter only embeded code")
+                return redirect('/admin/video_gallery_list')
+            form.save()
+            messages.success(request, "Video Added Successfully")
+        else:
+            messages.error(request, "Error Adding Video")
+        return redirect('/admin/video_gallery_list')
+    else:
+        messages.warning(request, "Only POST method is allowed for this operation.")
+        return redirect('/admin/video_gallery_list')
+ 
+
+def delete_video_from_gallery(request,id):
+    VideoGallery.objects.get(id=id).delete()
+    return redirect("/admin/video_gallery_list")
 
 
 def advertisement_list(request):

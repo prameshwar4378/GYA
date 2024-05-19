@@ -1,38 +1,80 @@
   {% extends "user_base.html" %}
   {% block headlinks %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.20.8/dist/css/uikit.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.20.8/dist/css/uikit.min.css" />
 
-{% endblock headlinks %}
+  {% endblock headlinks %}
   {% block content %}
   <style>
     .ticket_booking {
       display: inline-block;
       padding: 10px 20px;
-      background-color: #007bff; /* Bootstrap primary blue */
+      background-color: #007bff;
+      /* Bootstrap primary blue */
       color: white;
       text-transform: uppercase;
       font-weight: bold;
       text-decoration: none;
       border-radius: 5px;
       transition: background-color 0.3s;
-  }
-  
-  .ticket_booking:hover {
-      background-color: #0056b3; /* A darker shade of blue */
-      text-decoration: none; /* Ensures the text does not get underlined on hover */
-  }
-  
-  /* Blinking animation */
-  @keyframes blinking {
-      0% { opacity: 1.0; }
-      50% { opacity: 0.5; }
-      100% { opacity: 1.0; }
-  }
-  
-  .ticket_booking {
+    }
+
+    .ticket_booking:hover {
+      background-color: #0056b3;
+      /* A darker shade of blue */
+      text-decoration: none;
+      /* Ensures the text does not get underlined on hover */
+    }
+
+    /* Blinking animation */
+    @keyframes blinking {
+      0% {
+        opacity: 1.0;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+
+      100% {
+        opacity: 1.0;
+      }
+    }
+
+    .ticket_booking {
       animation: blinking 1.5s infinite;
-  }
-  
+    }
+
+
+
+    /* Style for the play button */
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    text-decoration: none;
+}
+
+.play-button:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+}
+
+/* Ensure the image covers the card correctly */
+.card-img-top {
+    object-fit: cover;
+}
+
   </style>
   <main id="main">
 
@@ -41,11 +83,11 @@
       <div class="container">
 
         <ol>
-                          <li><a href="{% url "index" %}">Home</a></li>
+          <li><a href="{% url "index" %}">Home</a></li>
 
 
           <li>News Details</li>
-        </ol> 
+        </ol>
 
       </div>
     </section><!-- End Breadcrumbs -->
@@ -54,7 +96,7 @@
     <section id="blog" class="blog">
       <div class="container" data-aos="fade-up">
 
-        <div class="row"> 
+        <div class="row">
           <div class="col-lg-8 entries">
 
             <article class="entry entry-single">
@@ -68,7 +110,7 @@
               </h2>
 
               <div class="entry-meta">
-             
+
                 <div class="row">
                   <div> <i class="bi bi-clock"></i> <a href=""> {{news_details.date}}</a></a></div>
                 </div>
@@ -79,35 +121,59 @@
                 <p>
                   {{ news_details.content }}
                 </p>
-                  
+
               </div>
-             
+
 
             </article><!-- End blog entry -->
-            
+
+              <!-- Dynamically generated cards start -->
+
+              <!-- Dynamically generated cards end -->
+
             <div class="blog-author d-flex align-items-center">
               <div class="container">
                 <h3><b>Photos</b></h3>
                 <div class="uk-child-width-1-5@m " uk-grid uk-lightbox="animation: slide">
-                   {% for photo in news_photos %}
-                  <div class=""> 
+                  {% for photo in news_photos %}
+                  <div class="">
                     {% if photo.image %}
                     <a class="uk-inline" href="{{photo.image.url}}" data-caption=" ">
-                      <img src="{{photo.image.url}}"  width="1800" height="1200" alt="">
+                      <img src="{{photo.image.url}}" width="1800" height="1200" alt="">
                     </a>
                     {% endif %}
-                  </div> 
+                  </div>
                   {% endfor %}
                 </div>
-             </div>
+              </div>
             </div><!-- End blog author bio -->
+
+            <div class="blog-author d-flex align-items-center">
+              <div class="container">
+                <h3><b>Videos</b></h3>
+                <div class="row">
+                {% for i in video_data %}
+                <div class="col-12 col-sm-3 col-md-fifth mb-4">
+                  <div class="card shadow" style="height: 100%; position: relative;">
+                    <img src="{{ i.thumbnail_url }}" class="card-img-top" alt="Video Thumbnail" style="width:100%; height:100%;">
+                    <a href="{{ i.video_url }}" target="_blank" class="btn btn-primary play-button">
+                      <i class="bi bi-play-fill"></i>
+                    </a>
+                </div>
+                
+                </div>
+                {% endfor %}
+              </div>
+              </div>
+            </div><!-- End blog author bio -->
+            
           </div><!-- End blog entries list -->
 
           <div class="col-lg-4">
             <div class="sidebar">
               <h3 class="sidebar-title">Recent News</h3>
               <div class="sidebar-item recent-posts">
-                 {% for news in latest_news %}
+                {% for news in latest_news %}
                 <div class="post-item clearfix">
                   {% if news.thumbnail %}
                   <img src="{{news.thumbnail.url}} " alt="">
@@ -115,27 +181,27 @@
                   <h4><a href="{% url "website_news_details" news.id %}">{{news.title}}</a></h4>
                   <time datetime="2020-01-01">{{news.date}}</time>
                 </div>
-                 {% endfor %}
-    
+                {% endfor %}
+
               </div><!-- End sidebar recent posts-->
-              </div><!-- End sidebar tags-->
+            </div><!-- End sidebar tags-->
 
-            </div><!-- End sidebar -->
+          </div><!-- End sidebar -->
 
-          </div><!-- End blog sidebar -->
+        </div><!-- End blog sidebar -->
 
-        </div>
+      </div>
 
       </div>
     </section><!-- End Blog Single Section -->
 
   </main><!-- End #main -->
-  
- 
-    
+
+
+
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.20.8/dist/js/uikit.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.20.8/dist/js/uikit-icons.min.js"></script>
   {% endblock content %}
-</body>
+  </body>
 
-</html>
+  </html>

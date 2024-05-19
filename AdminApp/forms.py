@@ -170,6 +170,13 @@ class PhotoGalleryForm(forms.ModelForm):
         model = PhotoGallery
         fields = ['caption', 'image']
 
+
+class VideoGalleryForm(forms.ModelForm):
+    class Meta:
+        model = VideoGallery
+        fields = ['caption', 'video_link']
+
+
 class AdvertisementForm(forms.ModelForm):
     class Meta:
         model = Advertisement

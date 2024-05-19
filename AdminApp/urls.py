@@ -1,7 +1,7 @@
 from django.urls import path
 from AdminApp.views import *
 urlpatterns = [
-    path('dashboard/', admin_dashboard, name="admin_dashboard"),
+    path('dashboard/', dashboard, name="admin_dashboard"),
     path('booking_list/', booking_list, name="admin_booking_list"),
     path('manage_booking/<int:id>/', manage_booking, name="admin_manage_booking"),
     path('delete_booking/<int:id>/', delete_booking, name="admin_delete_booking"),
@@ -17,6 +17,7 @@ urlpatterns = [
     path('create_event/', create_event, name="create_event"),
     path('update_event/<int:id>', update_event, name="update_event"),
     path('delete_event/<int:id>', delete_event, name="delete_event"),
+    path('update_event_publish_status/', update_event_publish_status, name="admin_update_event_publish_status"),
     path('event_details/<int:id>', event_details, name="admin_event_details"),
     path('add_event_ticket_price/', add_event_ticket_price, name="admin_add_event_ticket_price"),
     path('custom_logout/', custom_logout, name="custom_logout"),
@@ -35,6 +36,10 @@ urlpatterns = [
     path('create_photo_for_gallery/', create_photo_for_gallery, name="admin_create_photo_for_gallery"),
     path('delete_photo_from_gallery/<int:id>', delete_photo_from_gallery, name="admin_delete_photo_from_gallery"),
     
+    path('video_gallery_list/', video_gallery_list, name="admin_video_gallery_list"),
+    path('create_video_for_gallery/', create_video_for_gallery, name="admin_create_video_for_gallery"),
+    path('delete_video_from_gallery/<int:id>', delete_video_from_gallery, name="admin_delete_video_from_gallery"),
+
     path('advertisement_list/', advertisement_list, name="admin_advertisement_list"),
     path('create_advertisement/', create_advertisement, name="admin_create_advertisement"),
     path('update_advertisement/', update_advertisement, name="admin_update_advertisement"),

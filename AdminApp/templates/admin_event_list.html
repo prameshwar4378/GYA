@@ -147,6 +147,7 @@
                                         <th scope="col" class="text-center text-white">Organizer</th>
                                         <th scope="col" class="text-center text-white">Event Date</th>
                                         <th scope="col" class="text-center text-white">Status</th>
+                                        <th scope="col" class="text-center text-white">Is Publish</th>
                                         <th scope="col" class="text-center text-white">Actions</th>
                                     </tr>
                                 </thead>
@@ -156,14 +157,21 @@
                                     <tr>
 
                                         <td class="text-center">{{ forloop.counter }}</td>
-                                        <td class="text-center">{{ r.title }}</td>
+                                        <td class="text-center">{{ r.title|slice:":20" }}...</td>
                                         <td class="text-center">{{ r.organizer }}</td>
                                         <td class="text-center">{{ r.start_time }}</td>
                                         <td class="text-center">{{ r.status }}</td>
+                                        <td class="text-center">
+                                            {% if r.is_publish %}
+                                            <span class="badge bg-success">Yes</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">No</span>
+                                            {% endif %}
+                                        </td>
 
                                         <td>
                                             <center>
-                                                <a href="{% url "admin_event_details" r.id %}" class="btn btn-primary px-3">Read More</a>
+                                                <a href="{% url "admin_event_details" r.id %}" class="btn btn-warning px-3">Manage</a>
                                                 <a href="{% url "update_event" r.id %}" class="btn btn-warning px-3">Edit</a>
                                                 <a href="{% url "delete_event" r.id %}" class="btn btn-danger px-3">Delete</a>
                                             </center>

@@ -13946,10 +13946,43 @@
         font-size: 13px;
         color: #0d175d;
     }
+
+
+
+    /* loader.css */
+#loader-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f9f9f9;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#loader {
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #3498db;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 </style>
 
 <body>
-
+    <div id="loader-wrapper">
+        <div id="loader"></div>
+    </div>
 <!-- ======= Header ======= -->
 <header id="header" class="header fixed-top d-flex align-items-center">
 
@@ -14003,7 +14036,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
-            <a class="nav-link " href="">
+            <a class="nav-link " href="{% url "admin_dashboard" %}">
                 <i class="bi bi-grid"></i>
                 <span>Dashboard</span>
             </a>
@@ -14062,7 +14095,7 @@
           </a>
         </li>
         <li>
-          <a href="" style="text-decoration:none;">
+          <a href="{% url "admin_video_gallery_list" %}" style="text-decoration:none;">
               <i class="bi bi-play-circle" style="font-size:15px;"></i><span>Videos</span>
           </a>
         </li>
@@ -17800,7 +17833,20 @@
 
 
 
- 
+ <script>
+    // loader.js
+window.addEventListener('load', function() {
+    var loaderWrapper = document.getElementById('loader-wrapper');
+    var dashboardContent = document.getElementById('dashboard-content');
+
+    // Hide the loader
+    loaderWrapper.style.display = 'none';
+
+    // Show the dashboard content
+    dashboardContent.style.display = 'block';
+});
+
+ </script>
 
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>

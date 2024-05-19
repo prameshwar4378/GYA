@@ -100,10 +100,16 @@
                                         <td class="text-center">{{ r.userprofile.gender }}</td>
                                         <td class="text-center">{{ r.userprofile.dob }}</td>
                                         <td class="text-center">{{r.total_members }}</td>
-                                        <td class="text-center">{{r.userprofile.is_member }}</td>
+                                        <td class="text-center"> 
+                                            {% if r.userprofile.is_member  %}
+                                            <span class="badge bg-success">Yes</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">No</span>
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             <center>
-                                                <a href="{% url "admin_member_details" r.id %}" class="btn btn-primary px-3">Manage</a>
+                                                <a href="{% url "admin_member_details" r.id %}" class="btn btn-warning px-3">Manage</a>
                                                 <a href="{% url "admin_delete_member_user" r.id %}" class="btn btn-danger px-3">Delete</a>
                                             </center>
                                         </td>

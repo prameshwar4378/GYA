@@ -123,13 +123,9 @@ def delete_guests(request, id):
 @login_required
 def events(request):
     try:
-        # Assuming 'organizer' is a ForeignKey in Event
-        # Replace 'organizer' with actual related field names you have in your Event model
-        events = Event.objects.all()
-
+        events = Event.objects.filter(is_publish=True)
         return render(request, "user_events.html", {"data": events})
     except Exception as e:
-        # Optionally, log the exception details here, e.g., using Django's logging framework
         return render(request, "404.html", {
             "message": "An error occurred while retrieving events. Please try again later."
         }, status=500)
@@ -139,7 +135,7 @@ def events(request):
 @login_required    
 def event_details(request,id):
     try:
-        latest_events = Event.objects.select_related('eventthumbnail').order_by('-start_time')[:10]
+        latest_events = Event.objects.filter(is_publish=True).select_related('eventthumbnail').order_by('-start_time')[:10]
         event_details = get_object_or_404(Event, id=id)
         event_images_or_brochure=EventImagesBrochure.objects.filter(event=event_details)
         return render(request, "user_event_details.html", {"letest_events":latest_events,"event_details": event_details,"event_images_or_brochure":event_images_or_brochure})

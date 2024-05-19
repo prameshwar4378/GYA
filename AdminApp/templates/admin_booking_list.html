@@ -46,7 +46,7 @@
                 <div class="container" style="max-width:97%;">
                     <div class="text-lg-end text-start">
                         <!-- Use text-lg-end for right alignment in large screens -->
-                        <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#filter_data"><i
+                        <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#model_filter"><i
                                 class="mdi mdi-filter"></i> Filter</a> 
                                 
                                 <div class="dropdown">
@@ -66,27 +66,28 @@
     <hr>
 
 
-
-    <div class="modal fade" id="add_new_student" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    <div class="modal fade" id="model_filter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:1000px;">
             <div class="modal-content">
                 <div class="modal-header bg-gradient-primary text-light ">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Create New Event</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Filter Booking Record</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <form method="post" id="student_creation_form" 
+                        <form method="get"  
                             enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row">
-                                
+                                <div class="col-sm6">
+                                    {{ filter.form|crispy}}
+                                </div>
                             </div>
                             <center>
-                                <input type="submit" id="btnCreateSubmit" value="Submit"
+                                <input type="submit"   value="Submit"
                                     class="btn bg-gradient-primary text-light"></input>
                             </center>
                         </form>
@@ -95,6 +96,9 @@
             </div>
         </div>
     </div>
+
+
+     
 
 
     <section class="section dashboard">
@@ -131,9 +135,9 @@
                                         <td class="text-center">{{ ticket.price | default:"0.00" }}</td>
                                         <td class="">
                                             {% if ticket.is_paid %}
-                                            <span style="background:green; color:white;">Paid</span>
+                                            <span class="badge bg-success">Paid</span>
                                             {% else %}
-                                            <span style="background:red; color:white;">Not Paid</span>
+                                            <span class="badge bg-danger">Not Paid</span>
                                             {% endif %}
                                         </td>
                                         <td class="text-center">{{ ticket.event.title | default:"No Event" }}</td>

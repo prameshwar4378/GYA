@@ -58,9 +58,9 @@
                                         <td class="text-center">{{ forloop.counter }}</td>
                                         <td class="text-center"> 
                                             {% if add.is_active %}
-                                            <p class="bg-success text-light">Active</p>
+                                            <span class="badge bg-success">Publish</span>
                                             {% else %}
-                                            <p class="bg-secondary text-light">Not Active</p>
+                                            <span class="badge bg-danger">Not Publish</span>
                                             {% endif %}
                                         </td>
                                         <td class="text-center">{{ add.content }}</td>

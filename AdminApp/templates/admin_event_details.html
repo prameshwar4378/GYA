@@ -19,15 +19,18 @@
                 <div class="container" style="max-width:97%;">
                     <div class="text-lg-end text-start">
                         <!-- Use text-lg-end for right alignment in large screens -->
+                        
+                        <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#update_publish_status"><i
+                            class="mdi mdi-file-pdf"></i> Update Status</a>
+
                             <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_event_ticket_price"><i
                                 class="mdi mdi-file-pdf"></i>Set Ticket Price</a>
  
                                 <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_images_brochure"><i
                                     class="mdi mdi-file-pdf"></i> Add Images/Brochure</a>
      
-                                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_thumbnail"><i
-                                    class="mdi mdi-file-pdf"></i> Add Thumbnail</a>
-     
+                                    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#add_thumbnail"><i
+                                        class="mdi mdi-file-pdf"></i> Add Thumbnail</a>
                     </div>
                 </div>
             </div>
@@ -37,6 +40,43 @@
 
 
     
+
+    <div class="modal fade" id="update_publish_status" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-light ">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Update Event Publish Status</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <form method="post" action="{% url "admin_update_event_publish_status" %}"
+                            enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row"> 
+                                  
+                                <div class="col-sm-12"> 
+                                    <input type="checkbox" class="form-check-input" name="event_is_publish" id="event_is_publish" value="true" {% if data.is_publish %}checked{% endif %}>
+                                    <label class="form-check-label" for="event_is_publish">Publish Event</label>
+                                    <input type="hidden" name="txt_event_id" id="txt_event_id" value="{{data.id}}">
+                                </div> 
+                            </div>
+                            
+                            <center>
+                                <input type="submit"  value="Submit"
+                                    class="btn bg-gradient-primary text-light"></input>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <div class="modal fade" id="add_event_ticket_price" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true">
@@ -163,8 +203,22 @@
                     <div  >
                             <div class=""  >
 
-                                
-                                
+                                {% if not data.is_publish %}
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <p class="alert alert-warning">Event is not Publish, Would you like to publish? <a href="#"  data-toggle="modal" data-target="#update_publish_status">Click here</a></p>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if not data.eventthumbnail.thumbnail %}
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <p class="alert alert-warning">Recommended: Thumbnail not added. Would you like to add a thumbnail?  <a href="#"  data-toggle="modal" data-target="#add_thumbnail">Click here</a></p>
+                                    </div>
+                                </div>
+                                {% endif %}
+
                                 <div class="row">
                                     <div class="col-sm-12  py-3 mb-1">
                                         <div style="background:white; padding:10px;  border-radius:10px; box-shadow:0px 0px 10px -5px;">

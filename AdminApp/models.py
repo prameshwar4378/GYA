@@ -86,7 +86,7 @@ class Guest(models.Model):
 
 class Event(models.Model):
     STATUS_CHOICES = (
-        ('upcoming ', 'Upcoming '),
+        ('upcoming', 'Upcoming '),
         ('active', 'Active'),
         ('completed', 'Completed'),
         ('canceled', 'Canceled'),
@@ -100,6 +100,7 @@ class Event(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='upcoming')
     url = models.URLField(blank=True, null=True)
     ticket_price = models.IntegerField(default=0)
+    is_publish=models.BooleanField(default=False)
 
 
     def __str__(self):
@@ -118,7 +119,7 @@ class Ticket(models.Model):
     ticket_id=models.CharField(max_length=50)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     is_paid=models.BooleanField(default=False)
-    booking_date=models.DateTimeField(auto_now=True)
+    booking_date=models.DateTimeField(auto_now_add=True)
     ticket_file=models.FileField(upload_to="Tickets/", max_length=1000,null=True,blank=True)
     paid_amount=models.IntegerField(default=0)
 
@@ -163,6 +164,13 @@ class EventImagesBrochure(models.Model):
 class PhotoGallery(models.Model):
     caption = models.CharField(max_length=255, blank=True, null=True)
     image = models.ImageField(upload_to="photo_gallery/")
+    def __str__(self):
+        return f"{self.caption} Image"
+    
+
+class VideoGallery(models.Model):
+    caption = models.CharField(max_length=255, blank=True, null=True)
+    video_link = models.CharField(blank=True, null=True, help_text="Enter YouTube video link", max_length=255)
 
     def __str__(self):
         return f"{self.caption} Image"

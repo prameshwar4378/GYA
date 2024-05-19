@@ -1,4 +1,248 @@
-{% extends "admin_base.html" %}
+{% extends 'admin_base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
 {% block content %}
+<style>
+  .radius-10 {
+    border-radius: 10px !important;
+  }
+
+  .border-info {
+    border-left: 5px solid #0dcaf0 !important;
+  }
+
+  .border-danger {
+    border-left: 5px solid #fd3550 !important;
+  }
+
+  .border-success {
+    border-left: 5px solid #15ca20 !important;
+  }
+
+  .border-warning {
+    border-left: 5px solid #ffc107 !important;
+  }
+
+
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 0px solid rgba(0, 0, 0, 0);
+    border-radius: .25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%);
+  }
+
+  .bg-gradient-scooter {
+    background: #17ead9;
+    background: -webkit-linear-gradient(45deg, #17ead9, #6078ea) !important;
+    background: linear-gradient(45deg, #17ead9, #6078ea) !important;
+  }
+
+  .widgets-icons-2 {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ededed;
+    font-size: 27px;
+    border-radius: 10px;
+  }
+
+  .rounded-circle {
+    border-radius: 50% !important;
+  }
+
+  .text-white {
+    color: #fff !important;
+  }
+
+  .ms-auto {
+    margin-left: auto !important;
+  }
+
+  .bg-gradient-bloody {
+    background: #f54ea2;
+    background: -webkit-linear-gradient(45deg, #f54ea2, #ff7676) !important;
+    background: linear-gradient(45deg, #f54ea2, #ff7676) !important;
+  }
+
+  .bg-gradient-ohhappiness {
+    background: #00b09b;
+    background: -webkit-linear-gradient(45deg, #00b09b, #96c93d) !important;
+    background: linear-gradient(45deg, #00b09b, #96c93d) !important;
+  }
+
+  .bg-gradient-blooker {
+    background: #ffdf40;
+    background: -webkit-linear-gradient(45deg, #ffdf40, #ff8359) !important;
+    background: linear-gradient(45deg, #ffdf40, #ff8359) !important;
+  }
+</style>
+<main id="main" class="main">
+
+  <div class="pagetitle">
+    <h1>Dashboard</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">Dashboard </a></li>
+      </ol>
+    </nav>
+  </div>
+  <!-- End Page Title -->
+
+  <section class="section dashboard">
+    <div class="row">
+      <div class="container">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3">
+          <div class="col">
+            <div class="card radius-10 border-start border-0 border-3 border-info">
+              <div class="card-body">
+                <div class="d-flex align-items-center">
+                  <div>
+                    <p class="mb-0 mt-3 text-secondary">Today Tickets Generated</p>
+                    <h4 class="my-1 text-info">{{todays_tickets_count}}</h4>
+                  </div>
+                  <div class="widgets-icons-2 rounded-circle bg-gradient-scooter text-white ms-auto">
+                    <i class="bi bi-book"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card radius-10 border-start border-0 border-3 border-danger">
+              <div class="card-body">
+                <div class="d-flex align-items-center">
+                  <div>
+                    <p class="mb-0 mt-3 text-secondary">Total Publish Events</p>
+                    <h4 class="my-1 text-danger">{{active_event_count}}</h4>
+                  </div>
+                  <div class="widgets-icons-2 rounded-circle bg-gradient-bloody text-white ms-auto">
+                    <i class="bi bi-book"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card radius-10 border-start border-0 border-3 border-success">
+              <div class="card-body">
+                <div class="d-flex align-items-center">
+                  <div>
+                    <p class="mb-0 mt-3 text-secondary">New Users last 30 Days</p>
+                    <h4 class="my-1 text-success">{{new_users_last_30_days}}</h4>
+                  </div>
+                  <div class="widgets-icons-2 rounded-circle bg-gradient-ohhappiness text-white ms-auto">
+                    <i class="bi bi-book"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+
+          <!-- Card Start -->
+          <div class="col-sm-6" >
+            <div style="height:400px;" class="card recent-sales overflow-auto">
+
+              <div class="card-body">
+                <h5 class="card-title">Event Status</h5>
+                <div class="mt-4">
+                  <canvas id="event_status_chart" style="width:100%;"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End Card -->
+
+          <!-- Card Start -->
+          <div class="col-sm-6" >
+            <div style="height:400px;" class="card recent-sales overflow-auto">
+
+              <div class="card-body">
+                <h5 class="card-title">Members or Guests</h5>
+                <div style="height:200px; padding:0px;">
+                  <canvas id="profiles_chart" ></canvas>
+                </div>
+              </div>
+            </div>
+          </div><!-- End Card -->
+
+        </div>
+      </div>
+    </div>
+    </div><!-- End Left side columns -->
+  </section>
+
+
+</main><!-- End #main -->
+
+ 
+
+<script>
+  var event_status_count = {{ event_status_count_chart | safe }};
+  var event_status = {{ event_status_chart | safe }};
+  
+  var status_chart = {
+      type: 'bar',
+      data: {
+          datasets: [{
+              data: event_status_count,
+              backgroundColor: [
+                  '#054483', '#02BC3D', '#FFC107', '#FF5722', '#9C27B0',
+                  '#3F51B5', '#009688', '#4CAF50', '#607D8B', '#FF9800'
+              ],
+              label: 'Events'
+          }],
+          labels: event_status
+      },
+      options: {
+          responsive: true
+      }
+  };
+  
+  var profiles_labels = {{ profiles_labels | safe }};
+  var profile_count = {{ profile_count | safe }};
+  
+  var profile_chart = {
+      type: 'doughnut',
+      data: {
+          datasets: [{
+              data: profile_count,
+              backgroundColor: [
+                  '#054483', '#02BC3D', '#FFC107', '#FF5722', '#9C27B0',
+                  '#3F51B5', '#009688', '#4CAF50', '#607D8B', '#FF9800'
+              ],
+              label: 'Profiles'
+          }],
+          labels: profiles_labels
+      },
+      options: {
+          responsive: true
+      }
+  };
+  
+  window.onload = function () {
+      var ctx1 = document.getElementById('event_status_chart').getContext('2d');
+      var eventChart = new Chart(ctx1, status_chart);
+  
+      var ctx2 = document.getElementById('profiles_chart').getContext('2d');
+      var profileChart = new Chart(ctx2, profile_chart);
+  };
+  
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
 {% endblock content %}
